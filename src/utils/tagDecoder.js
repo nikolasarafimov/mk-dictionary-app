@@ -101,7 +101,6 @@ export function decodeTag(tag) {
 
   switch (pos) {
     case 'N': {
-      // N c m s n n → form: [‘N’, type, gender, number, case,]
       const [, t, g, num, cs, df] = letters;
       if (nounTypeMap[t])         parts.push(nounTypeMap[t]);
       if (genderMap[g])           parts.push(genderMap[g]);
@@ -109,7 +108,6 @@ export function decodeTag(tag) {
       break;
     }
     case 'V': {
-      // V t a p 1 s m n → [‘V’, type, aspect, tense, person, number, gender]
       const [, t, asp, vf, tn, p, num, g, neg] = letters;
       if (verbTypeMap[t])      parts.push(verbTypeMap[t]);
       if (aspectMap[asp])      parts.push(aspectMap[asp]);
@@ -120,7 +118,6 @@ export function decodeTag(tag) {
       break;
     }
     case 'A': {
-      // A t g n df → [‘A’, type, degree, gender, number]
       const [, t, g, num, df] = letters;
       if (adjectiveTypeMap[t])    parts.push(adjectiveTypeMap[t]);
       if (adjectiveDegreeMap[g])  parts.push(adjectiveDegreeMap[g]);
@@ -129,7 +126,6 @@ export function decodeTag(tag) {
       break;
     }
     case 'P': {
-      // P t p g num cs cl df → [‘P’, type, person, gender, number]
       const [, t, p_, g, num, cs, cl, df] = letters;
       if (pronounTypeMap[t])     parts.push(pronounTypeMap[t]);
       if (personMap[p_])         parts.push(personMap[p_]);
@@ -138,41 +134,35 @@ export function decodeTag(tag) {
       break;
     }
     case 'R': {
-      // R t d → [‘R’, type, degree]
       const [, t, d] = letters;
       if (adverbTypeMap[t])       parts.push(adverbTypeMap[t]);
       if (adverbDegreeMap[d])     parts.push(adverbDegreeMap[d]);
       break;
     }
     case 'S': {
-      // S p f → [‘S’, type, formation]
       const [, t, f] = letters;
       if (adpositionTypeMap[t])   parts.push(adpositionTypeMap[t]);
       if (adpositionFormMap[f])   parts.push(adpositionFormMap[f]);
       break;
     }
     case 'C': {
-      // C t f → [‘C’, type, formation]
       const [, t, f] = letters;
       if (conjunctionTypeMap[t])  parts.push(conjunctionTypeMap[t]);
       if (conjunctionFormMap[f])  parts.push(conjunctionFormMap[f]);
       break;
     }
     case 'M': {
-      // M f t g df → [‘M’, form, type, gender]
       const [, f, t, g, df] = letters;
       if (numeralFormMap[f])      parts.push(numeralFormMap[f]);
       if (genderMap[g])           parts.push(genderMap[g]);
       break;
     }
     case 'Q': {
-      // Q f → [‘Q’, formation]
       const [, f] = letters;
       if (particleFormMap[f])     parts.push(particleFormMap[f]);
       break;
     }
     case 'X': {
-      // X t → [‘X’, type]
       const [, t] = letters;
       if (residualTypeMap[t])     parts.push(residualTypeMap[t]);
       break;

@@ -173,17 +173,14 @@ const ABBREV_DATA = [
 ];
 
 export default function Abbreviations() {
-  const { group } = useParams();                // "1" through "7" or undefined
+  const { group } = useParams();              
   const navigate = useNavigate();
 
-  // Convert param to valid 1-7 number, default to 1
   const parsed = parseInt(group, 10);
   const validGroup = (parsed >= 1 && parsed <= GROUP_NAMES.length) ? parsed : 1;
 
-  // zero-based index for arrays
   const [groupIdx, setGroupIdx] = useState(validGroup - 1);
 
-  // Sync state when URL param changes
   useEffect(() => {
     const p = parseInt(group, 10);
     const g = (p >= 1 && p <= GROUP_NAMES.length) ? p : 1;
