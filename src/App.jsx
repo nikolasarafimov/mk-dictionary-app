@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Routes,
   Route,
@@ -6,21 +6,30 @@ import {
   useLocation,
   useParams,
   Navigate,
-} from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import initSqlJs from 'sql.js';
+} from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
-import LoadingOverlay from './components/LoadingOverlay';
-import NavBar from './components/NavBar';
-import SearchBar from './components/SearchBar';
-import LetterNav from './components/LetterNav';
-import WordList from './components/WordList';
-import WordDetails from './components/WordDetails';
-import RandomWordButton from './components/RandomWordButton';
-import LanguageInfo from './components/LanguageInfo';
-import Abbreviations from './components/Abbreviations';
-import NotFoundPage from './components/NotFoundPage';
-import Footer from './components/Footer';
+import LoadingOverlay from "./components/LoadingOverlay";
+import NavBar from "./components/NavBar";
+import SearchBar from "./components/SearchBar";
+import LetterNav from "./components/LetterNav";
+import WordList from "./components/WordList";
+import WordDetails from "./components/WordDetails";
+import RandomWordButton from "./components/RandomWordButton";
+import LanguageInfo from "./components/LanguageInfo";
+import Abbreviations from "./components/Abbreviations";
+import NotFoundPage from "./components/NotFoundPage";
+import Footer from "./components/Footer";
+
+import {
+  runQuery,
+  getTotalForms,
+  getRandomForm,
+  getWordsByLetter,
+  getWordByForm,
+  searchForms,
+  getSimilarForms,
+} from "./db/client";
 
 const pageTransition = {
   initial: { opacity: 0, y: 8 },
@@ -29,19 +38,51 @@ const pageTransition = {
   transition: { duration: 0.25 },
 };
 
-function Home({ onSearch, selectedLetter, onLetterClick, onRandom, totalWords }) {
+/* ---------------- HOME ---------------- */
+
+function Home({
+  searchInput,
+  onSearchInputChange,
+  onSearchSubmit,
+  selectedLetter,
+  onLetterClick,
+  onRandom,
+  totalWords,
+  isDbBusy,
+}) {
   return (
     <div className="home-container">
       <section className="home-hero card">
-        <h1 className="hero-title">Македонски дигитален речник</h1>
-        <p className="hero-subtitle">
-          Интерактивен, модерен и отворен ресурс за македонскиот јазик со{' '}
-          <strong>{totalWords.toLocaleString()}</strong> форми во базата.
-        </p>
+        <div className="hero-top">
+          <h1 className="hero-title">Македонски дигитален речник</h1>
+          <p className="hero-subtitle">
+            Интерактивен, модерен и отворен ресурс за македонскиот јазик.
+          </p>
+        </div>
+
+        <div className="hero-meta">
+          <div className="hero-stat">
+            <span className="hero-stat-label">Форми во базата</span>
+            <span className="hero-stat-value">
+              {totalWords
+                ? totalWords.toLocaleString("mk-MK")
+                : "Вчитување..."}
+            </span>
+          </div>
+          <div className="hero-stat">
+            <span className="hero-stat-label">Тип</span>
+            <span className="hero-stat-value">монолингвален речник</span>
+          </div>
+        </div>
       </section>
 
       <section className="home-search-section">
-        <SearchBar onSearch={onSearch} />
+        <SearchBar
+          term={searchInput}
+          onTermChange={onSearchInputChange}
+          onSearch={onSearchSubmit}
+          disabled={isDbBusy}
+        />
       </section>
 
       <section className="home-alpha-section card">
@@ -51,38 +92,47 @@ function Home({ onSearch, selectedLetter, onLetterClick, onRandom, totalWords })
             Одберете буква за да ги прегледате зборовите што започнуваат со неа.
           </p>
         </div>
-        <LetterNav selectedLetter={selectedLetter} onLetterClick={onLetterClick} />
+        <LetterNav
+          selectedLetter={selectedLetter}
+          onLetterClick={onLetterClick}
+          disabled={isDbBusy}
+        />
       </section>
 
       <section className="home-random-section">
-        <RandomWordButton onRandom={onRandom} />
+        <RandomWordButton onRandom={onRandom} disabled={isDbBusy} />
       </section>
 
       <section className="home-info card">
         <h2>За овој речник</h2>
         <p>
-          Речникот е изработен како дигитален ресурс кој овозможува брзо пребарување на
-          форми, леми и морфолошки ознаки на македонскиот јазик.
+          Речникот е изработен како дигитален ресурс кој овозможува брзо
+          пребарување на форми, леми и морфолошки ознаки на македонскиот јазик.
         </p>
         <ul>
           <li>
-            <strong>Почетна страница</strong> – пребарување, азбучен индекс и случаен збор.
+            <strong>Почетна страница</strong> – пребарување, азбучен индекс и
+            случаен збор.
           </li>
           <li>
-            <strong>Македонскиот јазик</strong> – информации за јазикот, распространетост и
-            лингвистички карактеристики.
+            <strong>Македонскиот јазик</strong> – информации за јазикот,
+            распространетост и лингвистички карактеристики.
           </li>
           <li>
-            <strong>Скратеници</strong> – листа на најчести скратеници и нивните значења.
+            <strong>Скратеници</strong> – листа на најчести скратеници и
+            нивните значења.
           </li>
         </ul>
         <p className="home-author">
-          Автор: <strong>Никола Сарафимов</strong>, студент на ФИНКИ – III година (ПИТ).
+          Автор: <strong>Никола Сарафимов</strong>, студент на ФИНКИ – III
+          година (ПИТ).
         </p>
       </section>
     </div>
   );
 }
+
+/* ---------------- LIST PAGE ---------------- */
 
 function ListPage({ words, onSelect, searchTerm }) {
   const { letter } = useParams();
@@ -100,21 +150,33 @@ function ListPage({ words, onSelect, searchTerm }) {
   }
 
   if (searchTerm && words.length === 0) {
-    return <Navigate to={`/not-found/${encodeURIComponent(searchTerm)}`} replace />;
+    return <Navigate to={`/not-found/${searchTerm}`} replace />;
   }
 
   return (
-    <div className="list-page card">
-      <div className="card-header">
-        <h2>Резултати за: „{label}“</h2>
-        <span className="results-count">{words.length} форми</span>
+    <div className="list-page-container">
+      <div className="results-card">
+        <div className="results-header">
+          <h2 className="results-title">
+            Резултати за: <span className="results-term">„{label}“</span>
+          </h2>
+
+          <span className="results-badge">
+            {words.length.toLocaleString()} форми
+          </span>
+        </div>
+
+        <div className="results-list-wrapper">
+          <WordList words={words} onSelect={onSelect} />
+        </div>
       </div>
-      <WordList words={words} onSelect={onSelect} />
     </div>
   );
 }
 
-function DetailsByParam({ db }) {
+/* ---------------- DETAILS PAGE ---------------- */
+
+function DetailsByParam({ queryFn }) {
   const { form } = useParams();
   const navigate = useNavigate();
 
@@ -122,42 +184,34 @@ function DetailsByParam({ db }) {
   const [word, setWord] = useState(null);
   const [similar, setSimilar] = useState([]);
 
-  const run = (sql, params = []) => {
-    const res = db.exec(sql, params);
-    if (!res.length) return [];
-    const { columns, values } = res[0];
-    return values.map((r) => Object.fromEntries(columns.map((c, i) => [c, r[i]])));
-  };
-
   useEffect(() => {
-    setLoading(true);
-    setWord(null);
-    setSimilar([]);
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setWord(null);
+      setSimilar([]);
+
+      // exact word
+      const main = await getWordByForm(form);
+      if (cancelled) return;
+
+      if (main) {
+        setWord(main);
+        const sims = await getSimilarForms(main.lemma, main.form);
+        if (!cancelled) setSimilar(sims);
+      }
+
+      if (!cancelled) setLoading(false);
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [form]);
 
-  useEffect(() => {
-    if (!db) return;
-
-    const main = run(
-      `SELECT form, lemma, tag FROM words WHERE form = ? LIMIT 1`,
-      [form],
-    );
-
-    if (main.length) {
-      setWord(main[0]);
-
-      const sims = run(
-        `SELECT DISTINCT form FROM words
-         WHERE lemma = ? AND form != ? 
-         ORDER BY RANDOM() LIMIT 8`,
-        [main[0].lemma, main[0].form],
-      ).map((o) => o.form);
-      setSimilar(sims);
-    }
-    setLoading(false);
-  }, [db, form]);
-
-  if (loading || !db) {
+  if (loading) {
     return (
       <div className="details-page card">
         <p>Вчитување на поимот…</p>
@@ -175,25 +229,31 @@ function DetailsByParam({ db }) {
     );
   }
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     const q = e.target.search.value.trim();
     if (!q) return;
-    const exact = run(
+
+    const exact = await runQuery(
       `SELECT form FROM words WHERE LOWER(form)=? LIMIT 1`,
-      [q.toLowerCase()],
+      [q.toLowerCase()]
     );
+
     if (exact.length) {
-      navigate(`/details/${encodeURIComponent(exact[0].form)}`);
+      navigate(`/details/${exact[0].form}`);
     } else {
-      navigate(`/not-found/${encodeURIComponent(q)}`);
+      navigate(`/not-found/${q}`);
     }
   };
 
   return (
     <div className="details-page">
       <form onSubmit={handleSearch} className="search-bar search-bar-inline">
-        <input name="search" defaultValue={form} placeholder="Пребарајте друг поим..." />
+        <input
+          name="search"
+          defaultValue={form}
+          placeholder="Пребарајте друг поим..."
+        />
         <button type="submit">🔍</button>
       </form>
 
@@ -208,7 +268,7 @@ function DetailsByParam({ db }) {
                 <button
                   key={i}
                   className="similar-badge"
-                  onClick={() => navigate(`/details/${encodeURIComponent(s)}`)}
+                  onClick={() => navigate(`/details/${s}`)}
                 >
                   {s}
                 </button>
@@ -221,135 +281,205 @@ function DetailsByParam({ db }) {
   );
 }
 
+/* ---------------- APP ROOT ---------------- */
+
 export default function App() {
-  const [db, setDb] = useState(null);
   const [totalWords, setTotalWords] = useState(0);
+
   const [filteredWords, setFiltered] = useState([]);
   const [selectedLetter, setLetter] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [isDbBusy, setIsDbBusy] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const { pathname } = location;
 
+  /* ---- Debounce search input (300ms) ---- */
   useEffect(() => {
-    (async () => {
-      const SQL = await initSqlJs({ locateFile: (f) => `/${f}` });
-      const resp = await fetch('/msd-mk.sqlite');
-      const buf = await resp.arrayBuffer();
-      const database = new SQL.Database(new Uint8Array(buf));
-      setDb(database);
-      const cnt = database.exec(`SELECT COUNT(*) AS cnt FROM words`);
-      if (cnt.length) setTotalWords(cnt[0].values[0][0]);
-    })();
-  }, []);
+    const trimmed = searchInput.trim();
+    if (!trimmed) {
+      setSearchTerm("");
+      return;
+    }
 
+    const id = setTimeout(() => {
+      setSearchTerm(trimmed);
+    }, 300);
+
+    return () => clearTimeout(id);
+  }, [searchInput]);
+
+  /* ---- Derive letter from URL ---- */
   useEffect(() => {
     const m = pathname.match(/^\/list\/(.+)$/);
     setLetter(m ? decodeURIComponent(m[1]) : null);
   }, [pathname]);
 
+  /* ---- Load total words lazily (only when we actually show home) ---- */
   useEffect(() => {
-    if (!db) return;
-    const run = (sql, params = []) => {
-      const res = db.exec(sql, params);
-      if (!res.length) return [];
-      const { columns, values } = res[0];
-      return values.map((r) => Object.fromEntries(columns.map((c, i) => [c, r[i]])));
-    };
+    if (!pathname.startsWith("/home")) return;
+    if (totalWords) return;
 
-    if (selectedLetter) {
-      const rows = run(
-        `SELECT form, lemma, tag FROM words 
-         WHERE UPPER(form) LIKE ? 
-         ORDER BY form COLLATE NOCASE 
-         LIMIT 10000`,
-        [selectedLetter.toUpperCase() + '%'],
-      );
-      setFiltered(rows);
-      navigate(`/list/${encodeURIComponent(selectedLetter)}`, { replace: true });
-    } else if (searchTerm) {
-      const exact = run(
-        `SELECT form, lemma, tag FROM words 
-         WHERE LOWER(form)=? LIMIT 1`,
-        [searchTerm.toLowerCase()],
-      );
-      if (exact.length) {
-        navigate(`/details/${encodeURIComponent(exact[0].form)}`);
+    let cancelled = false;
+
+    async function loadCount() {
+      try {
+        setIsDbBusy(true);
+        const cnt = await getTotalForms();
+        if (!cancelled) setTotalWords(cnt);
+      } finally {
+        if (!cancelled) setIsDbBusy(false);
+      }
+    }
+
+    loadCount();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, totalWords]);
+
+  /* ---- Main query effect (letter filter + search) ---- */
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!selectedLetter && !searchTerm) {
+        setFiltered([]);
         return;
       }
 
-      const rows = run(
-        `SELECT form, lemma, tag FROM words 
-         WHERE LOWER(form) LIKE ? 
-         ORDER BY form COLLATE NOCASE 
-         LIMIT 10000`,
-        [`%${searchTerm.toLowerCase()}%`],
-      );
-      setFiltered(rows);
-      if (rows.length) {
-        navigate('/list', { replace: true });
-      } else {
-        navigate(`/not-found/${encodeURIComponent(searchTerm)}`, { replace: true });
+      try {
+        setIsDbBusy(true);
+
+        // letter route (list/A ...)
+        if (selectedLetter && pathname.startsWith("/list")) {
+          const rows = await getWordsByLetter(selectedLetter);
+          if (cancelled) return;
+          setFiltered(rows);
+
+          const desired = `/list/${selectedLetter}`;
+          if (pathname !== desired) {
+            navigate(desired, { replace: true });
+          }
+          return;
+        }
+
+        // search term flow
+        if (searchTerm) {
+          // try exact match first
+          const exact = await getWordByForm(searchTerm);
+          if (cancelled) return;
+
+          if (exact) {
+            navigate(`/details/${exact.form}`);
+            return;
+          }
+
+          const rows = await searchForms(searchTerm);
+          if (cancelled) return;
+
+          setFiltered(rows);
+
+          if (rows.length) {
+            if (!pathname.startsWith("/list")) {
+              navigate("/list", { replace: true });
+            }
+          } else {
+            navigate(`/not-found/${searchTerm}`, { replace: true });
+          }
+        }
+      } finally {
+        if (!cancelled) setIsDbBusy(false);
       }
-    } else {
-      setFiltered([]);
     }
-  }, [db, selectedLetter, searchTerm, navigate]);
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedLetter, searchTerm, pathname, navigate]);
+
+  /* ---- Handlers ---- */
 
   const handleNavSelect = (key) => {
-    if (key === 'home') {
+    if (key === "home") {
       setLetter(null);
-      setSearchTerm('');
-      navigate('/home');
+      setSearchInput("");
+      setSearchTerm("");
+      navigate("/home");
     } else {
       navigate(`/${key}`);
     }
   };
 
-  const handleSearch = (term) => {
-    setSearchTerm(term);
+  const handleSearchInputChange = (value) => {
+    setSearchInput(value);
     setLetter(null);
   };
 
-  const handleLetterClick = (letter) => {
-    navigate(`/list/${encodeURIComponent(letter)}`);
+  const handleSearchSubmit = (term) => {
+    // immediate search on submit (keeps UX snappy)
+    const trimmed = term.trim();
+    if (!trimmed) return;
+    setSearchInput(trimmed);
+    setSearchTerm(trimmed);
   };
 
-  const handleRandom = () => {
-    if (!db) return;
-    const res = db.exec(`SELECT form FROM words ORDER BY RANDOM() LIMIT 1`);
-    if (!res.length) return;
-    navigate(`/details/${encodeURIComponent(res[0].values[0][0])}`);
+  const handleLetterClick = (letter) => {
+    setLetter(letter);
+    setSearchInput("");
+    setSearchTerm("");
+    navigate(`/list/${letter}`);
+  };
+
+  const handleRandom = async () => {
+    try {
+      setIsDbBusy(true);
+      const form = await getRandomForm();
+      if (form) {
+        navigate(`/details/${form}`);
+      }
+    } finally {
+      setIsDbBusy(false);
+    }
   };
 
   const navKey =
-    pathname.startsWith('/home') ? 'home' : pathname.split('/')[1] || 'home';
+    pathname.startsWith("/home") ? "home" : pathname.split("/")[1] || "home";
 
   return (
     <div className="app-shell">
       <NavBar selected={navKey} onSelect={handleNavSelect} />
 
       <main className="app-main">
-        {!db && <LoadingOverlay />}
+        {isDbBusy && <LoadingOverlay />}
 
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Navigate to="/home" replace />} />
+
             <Route
               path="/home"
               element={
                 <motion.div {...pageTransition}>
                   <Home
-                    onSearch={handleSearch}
+                    searchInput={searchInput}
+                    onSearchInputChange={handleSearchInputChange}
+                    onSearchSubmit={handleSearchSubmit}
                     selectedLetter={selectedLetter}
                     onLetterClick={handleLetterClick}
                     onRandom={handleRandom}
                     totalWords={totalWords}
+                    isDbBusy={isDbBusy}
                   />
                 </motion.div>
               }
             />
+
             <Route
               path="/list/:letter?"
               element={
@@ -358,22 +488,22 @@ export default function App() {
                     words={filteredWords}
                     searchTerm={searchTerm}
                     onSelect={(w) => {
-                      setSearchTerm('');
-                      setLetter(null);
-                      navigate(`/details/${encodeURIComponent(w.form)}`);
+                      navigate(`/details/${w.form}`);
                     }}
                   />
                 </motion.div>
               }
             />
+
             <Route
               path="/details/:form"
               element={
                 <motion.div {...pageTransition}>
-                  <DetailsByParam db={db} />
+                  <DetailsByParam queryFn={runQuery} />
                 </motion.div>
               }
             />
+
             <Route
               path="/language"
               element={
@@ -382,6 +512,7 @@ export default function App() {
                 </motion.div>
               }
             />
+
             <Route
               path="/abbr/:group?"
               element={
@@ -390,6 +521,7 @@ export default function App() {
                 </motion.div>
               }
             />
+
             <Route
               path="/not-found/:term"
               element={

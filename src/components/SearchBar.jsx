@@ -23,7 +23,7 @@ export default function SearchBar({
 
   const handleSuggestionClick = (word) => {
     if (disabled) return;
-    onSuggestionSelect(word);
+    onSuggestionSelect?.(word);
   };
 
   return (

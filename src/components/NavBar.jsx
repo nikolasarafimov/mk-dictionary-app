@@ -12,15 +12,19 @@ export default function NavBar({ selected, onSelect }) {
   ];
 
   const handleSelect = (key) => {
-    onSelect(key);
+    if (onSelect) onSelect(key);
     setOpen(false);
   };
 
   return (
     <nav className="pro-nav">
       <div className="pro-nav-inner">
-        <Link to="/home" className="pro-nav-logo">
-          <span>Македонски Речник на зборови</span>
+        <Link
+          to="/home"
+          className="pro-nav-logo"
+          onClick={() => handleSelect("home")}
+        >
+          <img src="/recnikLogo.png" alt="Македонски речник - Лого" />
         </Link>
 
         <div className="pro-nav-links">
@@ -29,9 +33,7 @@ export default function NavBar({ selected, onSelect }) {
               key={l.key}
               to={l.path}
               onClick={() => handleSelect(l.key)}
-              className={`pro-nav-link ${
-                selected === l.key ? "active" : ""
-              }`}
+              className={`pro-nav-link ${selected === l.key ? "active" : ""}`}
             >
               {l.label}
             </Link>
@@ -40,7 +42,8 @@ export default function NavBar({ selected, onSelect }) {
 
         <button
           className="pro-nav-mobile-button"
-          onClick={() => setOpen(!open)}
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Затвори мени" : "Отвори мени"}
         >
           {open ? <FiX /> : <FiMenu />}
         </button>
@@ -53,7 +56,9 @@ export default function NavBar({ selected, onSelect }) {
               key={l.key}
               to={l.path}
               onClick={() => handleSelect(l.key)}
-              className="pro-nav-mobile-item"
+              className={`pro-nav-mobile-item ${
+                selected === l.key ? "active" : ""
+              }`}
             >
               {l.label}
             </Link>
