@@ -1,12 +1,9 @@
-// src/components/LanguageInfo.jsx
 import React from "react";
 
 export default function LanguageInfo() {
   return (
     <div className="language-page">
-      {/* HERO / INTRO */}
       <h1 className="language-main-title">Македонски јазик</h1>
-
       <section className="language-hero card">
         <p className="language-kicker">Македонски јазик</p>
         <h1 className="language-title">Современиот македонски литературен јазик</h1>
@@ -31,9 +28,7 @@ export default function LanguageInfo() {
         </div>
       </section>
 
-      {/* GRID OF SECTIONS */}
       <div className="language-grid">
-        {/* 1. Позиција и класификација */}
         <section className="language-card card" id="classification">
           <h2>Позиција и класификација</h2>
           <p>
@@ -49,7 +44,6 @@ export default function LanguageInfo() {
           </ul>
         </section>
 
-        {/* 2. Распространетост и употреба */}
         <section className="language-card card" id="distribution">
           <h2>Распространетост и употреба</h2>
           <p>
@@ -65,7 +59,6 @@ export default function LanguageInfo() {
           </ul>
         </section>
 
-        {/* 3. Дијалекти */}
         <section className="language-card card" id="dialects">
           <h2>Дијалектна разгранетост</h2>
           <p>
@@ -98,7 +91,6 @@ export default function LanguageInfo() {
           </div>
         </section>
 
-        {/* 4. Азбука и гласовен систем */}
         <section className="language-card card" id="alphabet">
           <h2>Азбука и гласовен систем</h2>
           <p>
@@ -118,7 +110,6 @@ export default function LanguageInfo() {
           </p>
         </section>
 
-        {/* 5. Особини на македонскиот јазик */}
         <section className="language-card card" id="features">
           <h2>Особини на македонскиот јазик</h2>
           <p>
@@ -154,7 +145,6 @@ export default function LanguageInfo() {
           </ul>
         </section>
 
-        {/* 6. Историски развој */}
         <section className="language-card card" id="history">
           <h2>Историски развој</h2>
           <p>

@@ -3,9 +3,6 @@ const STORE_NAME = 'files';
 const DB_VERSION = 1;
 const DB_FILE_KEY = 'msd-mk.sqlite';
 
-/**
- * Open (or create) our tiny IndexedDB database.
- */
 function openIDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -22,10 +19,6 @@ function openIDB() {
   });
 }
 
-/**
- * Load the cached SQLite file, if present.
- * @returns {Promise<ArrayBuffer | null>}
- */
 export async function loadCachedDbFile() {
   const db = await openIDB();
   return new Promise((resolve, reject) => {
@@ -38,10 +31,6 @@ export async function loadCachedDbFile() {
   });
 }
 
-/**
- * Save the SQLite file for future visits.
- * @param {ArrayBuffer} buffer
- */
 export async function saveDbFile(buffer) {
   const db = await openIDB();
   return new Promise((resolve, reject) => {

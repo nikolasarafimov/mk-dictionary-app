@@ -38,8 +38,6 @@ const pageTransition = {
   transition: { duration: 0.25 },
 };
 
-/* ---------------- HOME ---------------- */
-
 function Home({
   searchInput,
   onSearchInputChange,
@@ -132,8 +130,6 @@ function Home({
   );
 }
 
-/* ---------------- LIST PAGE ---------------- */
-
 function ListPage({ words, onSelect, searchTerm }) {
   const { letter } = useParams();
   const label = letter || searchTerm;
@@ -174,8 +170,6 @@ function ListPage({ words, onSelect, searchTerm }) {
   );
 }
 
-/* ---------------- DETAILS PAGE ---------------- */
-
 function DetailsByParam({ queryFn }) {
   const { form } = useParams();
   const navigate = useNavigate();
@@ -192,7 +186,6 @@ function DetailsByParam({ queryFn }) {
       setWord(null);
       setSimilar([]);
 
-      // exact word
       const main = await getWordByForm(form);
       if (cancelled) return;
 
@@ -281,8 +274,6 @@ function DetailsByParam({ queryFn }) {
   );
 }
 
-/* ---------------- APP ROOT ---------------- */
-
 export default function App() {
   const [totalWords, setTotalWords] = useState(0);
 
@@ -298,7 +289,6 @@ export default function App() {
   const location = useLocation();
   const { pathname } = location;
 
-  /* ---- Debounce search input (300ms) ---- */
   useEffect(() => {
     const trimmed = searchInput.trim();
     if (!trimmed) {
@@ -313,13 +303,11 @@ export default function App() {
     return () => clearTimeout(id);
   }, [searchInput]);
 
-  /* ---- Derive letter from URL ---- */
   useEffect(() => {
     const m = pathname.match(/^\/list\/(.+)$/);
     setLetter(m ? decodeURIComponent(m[1]) : null);
   }, [pathname]);
 
-  /* ---- Load total words lazily (only when we actually show home) ---- */
   useEffect(() => {
     if (!pathname.startsWith("/home")) return;
     if (totalWords) return;
@@ -342,7 +330,6 @@ export default function App() {
     };
   }, [pathname, totalWords]);
 
-  /* ---- Main query effect (letter filter + search) ---- */
   useEffect(() => {
     let cancelled = false;
 
@@ -355,7 +342,6 @@ export default function App() {
       try {
         setIsDbBusy(true);
 
-        // letter route (list/A ...)
         if (selectedLetter && pathname.startsWith("/list")) {
           const rows = await getWordsByLetter(selectedLetter);
           if (cancelled) return;
@@ -368,9 +354,7 @@ export default function App() {
           return;
         }
 
-        // search term flow
         if (searchTerm) {
-          // try exact match first
           const exact = await getWordByForm(searchTerm);
           if (cancelled) return;
 
@@ -403,8 +387,6 @@ export default function App() {
     };
   }, [selectedLetter, searchTerm, pathname, navigate]);
 
-  /* ---- Handlers ---- */
-
   const handleNavSelect = (key) => {
     if (key === "home") {
       setLetter(null);
@@ -422,7 +404,6 @@ export default function App() {
   };
 
   const handleSearchSubmit = (term) => {
-    // immediate search on submit (keeps UX snappy)
     const trimmed = term.trim();
     if (!trimmed) return;
     setSearchInput(trimmed);

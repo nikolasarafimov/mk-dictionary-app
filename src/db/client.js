@@ -1,13 +1,10 @@
 import { loadCachedDbFile, saveDbFile } from './indexedDb';
 
 let worker = null;
-let pending = new Map();     // id -> {resolve, reject}
+let pending = new Map();    
 let nextId = 1;
 let initPromise = null;
 
-/**
- * Create the worker (once).
- */
 function getWorker() {
   if (!worker) {
     worker = new Worker(
@@ -40,38 +37,27 @@ function postToWorker(type, payload) {
   });
 }
 
-/**
- * Init DB: try IndexedDB cache, otherwise fetch /msd-mk.sqlite and cache it.
- * Lazy – only called when we first actually need the DB.
- */
+
 export async function initDbIfNeeded() {
   if (initPromise) return initPromise;
 
   initPromise = (async () => {
-    // 1) Try cache
     let buffer = await loadCachedDbFile();
 
     if (!buffer) {
-      // 2) Fetch from network once
       const resp = await fetch('/msd-mk.sqlite');
       buffer = await resp.arrayBuffer();
-      // 3) Save for future visits
       saveDbFile(buffer).catch(() => {
-        // non-fatal if it fails
         console.warn('Could not cache DB in IndexedDB');
       });
     }
 
-    // 4) Send to worker
     await postToWorker('init', { dbArrayBuffer: buffer });
   })();
 
   return initPromise;
 }
 
-/**
- * Run query and return rows as array of {column: value} objects.
- */
 export async function runQuery(sql, params = []) {
   await initDbIfNeeded();
   const result = await postToWorker('query', { sql, params });
@@ -83,20 +69,11 @@ export async function runQuery(sql, params = []) {
   );
 }
 
-/* ======= Convenience helpers with better SQL ======= */
-
-/** Total number of forms (used on Home hero). */
 export async function getTotalForms() {
   const rows = await runQuery('SELECT COUNT(*) AS cnt FROM words');
   return rows.length ? rows[0].cnt : 0;
 }
 
-/**
- * Optimized random form:
- *  - compute [minRowId, maxRowId] once
- *  - pick random rowid in this interval
- *  - select first form with rowid >= random
- */
 let rowIdRange = null;
 
 async function getRowIdRange() {
@@ -118,7 +95,6 @@ export async function getRandomForm() {
   return rows.length ? rows[0].form : null;
 }
 
-/** All words starting with a given letter (uppercased). */
 export async function getWordsByLetter(letter) {
   return runQuery(
     `SELECT form, lemma, tag FROM words
@@ -129,7 +105,6 @@ export async function getWordsByLetter(letter) {
   );
 }
 
-/** Exact form lookup. */
 export async function getWordByForm(form) {
   const rows = await runQuery(
     `SELECT form, lemma, tag FROM words WHERE form = ? LIMIT 1`,
@@ -138,7 +113,6 @@ export async function getWordByForm(form) {
   return rows[0] || null;
 }
 
-/** Search by substring (used for queries). */
 export async function searchForms(term) {
   return runQuery(
     `SELECT form, lemma, tag FROM words
@@ -149,7 +123,6 @@ export async function searchForms(term) {
   );
 }
 
-/** Similar forms by lemma. */
 export async function getSimilarForms(lemma, form) {
   const rows = await runQuery(
     `SELECT DISTINCT form FROM words
