@@ -1,24 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { decodeTag} from "../utils/tagDecoder";
+import { decodeTag } from "../utils/tagDecoder";
+import { toggleFavorite, isFavorite } from "../utils/favoriteManager";
 
 export default function WordDetails({ word }) {
-  const [fav, setFav] = useState(false);
-
   if (!word) return null;
 
+  const [fav, setFav] = useState(isFavorite(word.form));
+  const [copied, setCopied] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  // FAVORITES
   const handleFavorite = () => {
     const nowFav = toggleFavorite(word);
     setFav(nowFav);
   };
 
-  const handleCopyWord = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(word.form).catch(() => {});
-    }
+  // COPY WORD
+  const handleCopyWord = async () => {
+    try {
+      await navigator.clipboard.writeText(word.form);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {}
   };
 
+  // SHARE
   const handleShare = async () => {
     const url = window.location.href;
+
     try {
       if (navigator.share) {
         await navigator.share({
@@ -26,9 +35,11 @@ export default function WordDetails({ word }) {
           text: `Погледни го поимот „${word.form}“ во македонскиот речник.`,
           url,
         });
-      } else if (navigator.clipboard) {
+      } else {
+        // fallback: copy to clipboard
         await navigator.clipboard.writeText(url);
-        alert("Врската е копирана во clipboard.");
+        setShared(true);
+        setTimeout(() => setShared(false), 1200);
       }
     } catch {}
   };
@@ -39,6 +50,7 @@ export default function WordDetails({ word }) {
         <h2>{word.form}</h2>
 
         <div className="word-actions">
+          {/* FAVORITES */}
           <button
             type="button"
             className={`badge-button ${fav ? "badge-fav" : ""}`}
@@ -47,6 +59,7 @@ export default function WordDetails({ word }) {
             {fav ? "★ Омилен" : "☆ Додај во омилени"}
           </button>
 
+          {/* COPY */}
           <button
             type="button"
             className="badge-button"
@@ -55,6 +68,7 @@ export default function WordDetails({ word }) {
             📋 Копирај збор
           </button>
 
+          {/* SHARE */}
           <button
             type="button"
             className="badge-button"
@@ -63,18 +77,22 @@ export default function WordDetails({ word }) {
             🔗 Сподели
           </button>
         </div>
+
+        {/* TOASTS */}
+        {copied && <span className="copy-toast">✓ Копирано!</span>}
+        {shared && <span className="share-toast">✓ Линкот е копиран!</span>}
       </div>
 
       <p>
-        <strong>Потекло:</strong> {word.lemma}
+        <strong>Потекло:</strong> {word.lemma || "—"}
       </p>
 
       <p>
-        <strong>Морфолошка ознака:</strong> {word.tag}
+        <strong>Морфолошка ознака:</strong> {word.tag || "—"}
       </p>
 
       <p>
-        <strong>Опис:</strong> {decodeTag(word.tag)}
+        <strong>Опис:</strong> {decodeTag(word.tag) || "—"}
       </p>
     </div>
   );

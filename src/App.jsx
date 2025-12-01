@@ -20,6 +20,7 @@ import LanguageInfo from "./components/LanguageInfo";
 import Abbreviations from "./components/Abbreviations";
 import NotFoundPage from "./components/NotFoundPage";
 import Footer from "./components/Footer";
+import Favorites from "./pages/Favorites";
 
 import {
   runQuery,
@@ -77,7 +78,7 @@ function Home({
         </div>
       </section>
 
-      <section className="home-search-section">
+      <section className="search-wrapper">
         <SearchBar
           term={searchInput}
           onTermChange={onSearchInputChange}
@@ -552,6 +553,13 @@ export default function App() {
                   <NotFoundPage />
                 </motion.div>
               }
+            />
+
+            <Route 
+              path="/favorites" 
+              element={
+                <Favorites />
+              } 
             />
           </Routes>
         </AnimatePresence>

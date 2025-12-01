@@ -9,6 +9,7 @@ export default function NavBar({ selected, onSelect }) {
     { key: "home", label: "Почетна", path: "/home" },
     { key: "language", label: "Македонски јазик", path: "/language" },
     { key: "abbr", label: "Скратеници", path: "/abbr" },
+    { key: "favorites", label: "Омилени", path: "/favorites" }, // ⭐ NEW
   ];
 
   const handleSelect = (key) => {
@@ -19,6 +20,7 @@ export default function NavBar({ selected, onSelect }) {
   return (
     <nav className="pro-nav">
       <div className="pro-nav-inner">
+        {/* LOGO */}
         <Link
           to="/home"
           className="pro-nav-logo"
@@ -27,6 +29,7 @@ export default function NavBar({ selected, onSelect }) {
           <img src="/recnikLogo.png" alt="Македонски речник - Лого" />
         </Link>
 
+        {/* DESKTOP MENU */}
         <div className="pro-nav-links">
           {links.map((l) => (
             <Link
@@ -40,6 +43,7 @@ export default function NavBar({ selected, onSelect }) {
           ))}
         </div>
 
+        {/* MOBILE MENU BUTTON */}
         <button
           className="pro-nav-mobile-button"
           onClick={() => setOpen((v) => !v)}
@@ -49,6 +53,7 @@ export default function NavBar({ selected, onSelect }) {
         </button>
       </div>
 
+      {/* MOBILE MENU DROPDOWN */}
       {open && (
         <div className="pro-nav-mobile-menu">
           {links.map((l) => (

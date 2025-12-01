@@ -165,3 +165,16 @@ export async function getSimilarForms(lemma, form) {
   );
   return rows.map((r) => r.form);
 }
+
+export async function getWordsByForms(forms) {
+  if (!forms || forms.length === 0) return [];
+
+  const placeholders = forms.map(() => "?").join(",");
+
+  return runQuery(
+    `SELECT form, lemma, tag FROM words
+     WHERE form IN (${placeholders})
+     ORDER BY form COLLATE NOCASE`,
+    forms
+  );
+}
