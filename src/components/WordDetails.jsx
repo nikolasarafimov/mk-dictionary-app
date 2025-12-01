@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { decodeTag} from "../utils/tagDecoder";
 
 export default function WordDetails({ word }) {
   const [fav, setFav] = useState(false);
@@ -75,12 +76,6 @@ export default function WordDetails({ word }) {
       <p>
         <strong>Опис:</strong> {decodeTag(word.tag)}
       </p>
-
-      {grammar && grammar.length > 0 && (
-        <p className="grammar-explanation">
-          <strong>Граматички опис:</strong> {grammar.join(", ")}
-        </p>
-      )}
     </div>
   );
 }
