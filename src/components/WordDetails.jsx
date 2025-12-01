@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { decodeTag, getGrammarExplanation } from "../utils/tagDecoder";
 
 export default function WordDetails({ word }) {
   const [fav, setFav] = useState(false);
 
   if (!word) return null;
-
-  const grammar = getGrammarExplanation(word.tag);
 
   const handleFavorite = () => {
     const nowFav = toggleFavorite(word);
@@ -32,9 +29,7 @@ export default function WordDetails({ word }) {
         await navigator.clipboard.writeText(url);
         alert("Врската е копирана во clipboard.");
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
   };
 
   return (

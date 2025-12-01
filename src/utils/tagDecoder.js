@@ -1,6 +1,3 @@
-// =======================
-// Part-of-speech map
-// =======================
 export const posMap = {
   N: 'именка',
   V: 'глагол',
@@ -17,9 +14,6 @@ export const posMap = {
   Z: 'интерпункција'
 };
 
-// =======================
-// SUPPORTING MAPS
-// =======================
 
 // Nouns
 export const nounTypeMap = { c: 'општа', p: 'сопствена' };
@@ -98,10 +92,6 @@ export const residualTypeMap = {
   p: 'име на програма'
 };
 
-
-// =======================
-// MAIN TAG DECODER (only one!)
-// =======================
 export function decodeTag(tag) {
   if (!tag) return 'Нема морфолошка ознака!';
 
@@ -194,12 +184,4 @@ export function decodeTag(tag) {
   }
 
   return parts.join(', ');
-}
-
-
-// =======================
-// Grammar Explanation
-// =======================
-export function getGrammarExplanation(tag) {
-  return []; // placeholder, safe until we build full explanations
 }
