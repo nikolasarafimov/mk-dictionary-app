@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Routes,
   Route,
@@ -29,6 +29,7 @@ import {
   getWordByForm,
   searchForms,
   getSimilarForms,
+  getSearchSuggestions,
 } from "./db/client";
 
 const pageTransition = {
@@ -47,6 +48,8 @@ function Home({
   onRandom,
   totalWords,
   isDbBusy,
+  suggestions,
+  onSuggestionSelect,
 }) {
   return (
     <div className="home-container">
@@ -79,6 +82,8 @@ function Home({
           term={searchInput}
           onTermChange={onSearchInputChange}
           onSearch={onSearchSubmit}
+          suggestions={suggestions}
+          onSuggestionSelect={onSuggestionSelect}
           disabled={isDbBusy}
         />
       </section>
@@ -104,7 +109,7 @@ function Home({
       <section className="home-info card">
         <h2>За овој речник</h2>
         <p>
-          Речникот е изработен како дигитален ресурс кој овозможува брзо
+          Речникот е изработен као дигитален ресурс кој овозможува брзо
           пребарување на форми, леми и морфолошки ознаки на македонскиот јазик.
         </p>
         <ul>
@@ -204,13 +209,7 @@ function DetailsByParam({ queryFn }) {
     };
   }, [form]);
 
-  if (loading) {
-    return (
-      <div className="details-page card">
-        <p>Вчитување на поимот…</p>
-      </div>
-    );
-  }
+  
 
   if (!word) {
     return (
@@ -285,6 +284,8 @@ export default function App() {
 
   const [isDbBusy, setIsDbBusy] = useState(false);
 
+  const [suggestions, setSuggestions] = useState([]);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { pathname } = location;
@@ -301,6 +302,36 @@ export default function App() {
     }, 300);
 
     return () => clearTimeout(id);
+  }, [searchInput]);
+
+  // 🔹 Suggestions effect
+  useEffect(() => {
+    let cancelled = false;
+
+    const trimmed = searchInput.trim();
+    if (!trimmed) {
+      setSuggestions([]);
+      return;
+    }
+
+    const id = setTimeout(async () => {
+      try {
+        const suggs = await getSearchSuggestions(trimmed);
+        if (!cancelled) {
+          setSuggestions(suggs);
+        }
+      } catch (err) {
+        console.error("Error loading suggestions:", err);
+        if (!cancelled) {
+          setSuggestions([]);
+        }
+      }
+    }, 200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(id);
+    };
   }, [searchInput]);
 
   useEffect(() => {
@@ -392,6 +423,7 @@ export default function App() {
       setLetter(null);
       setSearchInput("");
       setSearchTerm("");
+      setSuggestions([]);
       navigate("/home");
     } else {
       navigate(`/${key}`);
@@ -408,12 +440,14 @@ export default function App() {
     if (!trimmed) return;
     setSearchInput(trimmed);
     setSearchTerm(trimmed);
+    setSuggestions([]);
   };
 
   const handleLetterClick = (letter) => {
     setLetter(letter);
     setSearchInput("");
     setSearchTerm("");
+    setSuggestions([]);
     navigate(`/list/${letter}`);
   };
 
@@ -427,6 +461,12 @@ export default function App() {
     } finally {
       setIsDbBusy(false);
     }
+  };
+
+  const handleSuggestionSelect = (word) => {
+    setSearchInput(word);
+    setSearchTerm(word);
+    setSuggestions([]);
   };
 
   const navKey =
@@ -456,6 +496,8 @@ export default function App() {
                     onRandom={handleRandom}
                     totalWords={totalWords}
                     isDbBusy={isDbBusy}
+                    suggestions={suggestions}
+                    onSuggestionSelect={handleSuggestionSelect}
                   />
                 </motion.div>
               }

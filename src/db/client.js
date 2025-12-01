@@ -123,6 +123,39 @@ export async function searchForms(term) {
   );
 }
 
+export async function getSearchSuggestions(term, limit = 10) {
+  const trimmed = term.trim();
+  if (!trimmed) return [];
+
+  const lower = trimmed.toLowerCase();
+
+  const starts = await runQuery(
+    `SELECT DISTINCT form FROM words
+     WHERE LOWER(form) LIKE ?
+     ORDER BY form COLLATE NOCASE
+     LIMIT ?`,
+    [lower + '%', limit]
+  );
+
+  if (starts.length >= limit) {
+    return starts.map((r) => r.form);
+  }
+
+  const remaining = limit - starts.length;
+
+  const contains = await runQuery(
+    `SELECT DISTINCT form FROM words
+     WHERE LOWER(form) LIKE ?
+       AND LOWER(form) NOT LIKE ?
+     ORDER BY form COLLATE NOCASE
+     LIMIT ?`,
+    ['%' + lower + '%', lower + '%', remaining]
+  );
+
+  return [...starts, ...contains].map((r) => r.form);
+}
+
+
 export async function getSimilarForms(lemma, form) {
   const rows = await runQuery(
     `SELECT DISTINCT form FROM words

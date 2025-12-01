@@ -1,3 +1,6 @@
+// =======================
+// Part-of-speech map
+// =======================
 export const posMap = {
   N: 'именка',
   V: 'глагол',
@@ -14,12 +17,16 @@ export const posMap = {
   Z: 'интерпункција'
 };
 
-//Noun
+// =======================
+// SUPPORTING MAPS
+// =======================
+
+// Nouns
 export const nounTypeMap = { c: 'општа', p: 'сопствена' };
 export const genderMap  = { m: 'машки род', f: 'женски род', n: 'среден род' };
 export const numberMap  = { s: 'еднина', p: 'множина' };
 
-//Verb
+// Verbs
 export const verbTypeMap   = { m: 'главен', a: 'помошен', o: 'модален' };
 export const aspectMap     = { p: 'несвршен', e: 'свршен' };
 export const tenseMap      = {
@@ -30,7 +37,7 @@ export const tenseMap      = {
 };
 export const personMap     = { 1: 'прво лице', 2: 'второ лице', 3: 'трето лице' };
 
-//Adjective
+// Adjectives
 export const adjectiveTypeMap = {
   g: 'општа',
   s: 'сопственa',
@@ -41,19 +48,19 @@ export const adjectiveDegreeMap = {
   s: 'суперлативна'
 };
 
-//Pronoun
+// Pronouns
 export const pronounTypeMap = {
   p: 'личен',
   d: 'демонстративен',
   i: 'недефиниран',
-  q: 'прашање',
+  q: 'прашален',
   r: 'релационен',
   x: 'рефлексивен',
   z: 'негативен',
   g: 'општ'
 };
 
-//Adverb
+// Adverbs
 export const adverbTypeMap   = {
   g: 'општ прилог',
   a: 'прилог-придавка',
@@ -66,21 +73,21 @@ export const adverbDegreeMap = {
   s: 'суперлативна'
 };
 
-//Adposition
+// Adpositions
 export const adpositionTypeMap = { p: 'прост предлог' };
 export const adpositionFormMap = { s: 'прост', c: 'сложен' };
 
-//Conjunction
+// Conjunctions
 export const conjunctionTypeMap = { c: 'координативен', s: 'субординативен' };
 export const conjunctionFormMap = { s: 'прост', c: 'сложен' };
 
-// Numeral
+// Numerals
 export const numeralFormMap = { d: 'арапска цифра', r: 'римска цифра', l: 'со букви' };
 
-//Particle
+// Particles
 export const particleFormMap = { s: 'проста честичка', c: 'сложена честичка' };
 
-//Residual
+// Residual
 export const residualTypeMap = {
   f: 'странски збор',
   t: 'типографска грешка',
@@ -91,8 +98,13 @@ export const residualTypeMap = {
   p: 'име на програма'
 };
 
+
+// =======================
+// MAIN TAG DECODER (only one!)
+// =======================
 export function decodeTag(tag) {
   if (!tag) return 'Нема морфолошка ознака!';
+
   const letters = tag.split('');
   const pos = letters[0];
   const parts = [];
@@ -101,78 +113,93 @@ export function decodeTag(tag) {
 
   switch (pos) {
     case 'N': {
-      const [, t, g, num, cs, df] = letters;
-      if (nounTypeMap[t])         parts.push(nounTypeMap[t]);
-      if (genderMap[g])           parts.push(genderMap[g]);
-      if (numberMap[num])         parts.push(numberMap[num]);
+      const [, t, g, num] = letters;
+      if (nounTypeMap[t])  parts.push(nounTypeMap[t]);
+      if (genderMap[g])    parts.push(genderMap[g]);
+      if (numberMap[num])  parts.push(numberMap[num]);
       break;
     }
+
     case 'V': {
-      const [, t, asp, vf, tn, p, num, g, neg] = letters;
-      if (verbTypeMap[t])      parts.push(verbTypeMap[t]);
-      if (aspectMap[asp])      parts.push(aspectMap[asp]);
-      if (tenseMap[tn])        parts.push(tenseMap[tn]);
-      if (personMap[p])        parts.push(personMap[p]);
-      if (numberMap[num])      parts.push(numberMap[num]);
-      if (genderMap[g])        parts.push(genderMap[g]);
+      const [, t, asp, , tn, p, num, g] = letters;
+      if (verbTypeMap[t]) parts.push(verbTypeMap[t]);
+      if (aspectMap[asp]) parts.push(aspectMap[asp]);
+      if (tenseMap[tn])   parts.push(tenseMap[tn]);
+      if (personMap[p])   parts.push(personMap[p]);
+      if (numberMap[num]) parts.push(numberMap[num]);
+      if (genderMap[g])   parts.push(genderMap[g]);
       break;
     }
+
     case 'A': {
-      const [, t, g, num, df] = letters;
-      if (adjectiveTypeMap[t])    parts.push(adjectiveTypeMap[t]);
-      if (adjectiveDegreeMap[g])  parts.push(adjectiveDegreeMap[g]);
-      if (genderMap[num])         parts.push(genderMap[num]);
-      if (numberMap[num])         parts.push(numberMap[num]);
-      break;
-    }
-    case 'P': {
-      const [, t, p_, g, num, cs, cl, df] = letters;
-      if (pronounTypeMap[t])     parts.push(pronounTypeMap[t]);
-      if (personMap[p_])         parts.push(personMap[p_]);
+      const [, t, deg, g, num] = letters;
+      if (adjectiveTypeMap[t])   parts.push(adjectiveTypeMap[t]);
+      if (adjectiveDegreeMap[deg]) parts.push(adjectiveDegreeMap[deg]);
       if (genderMap[g])          parts.push(genderMap[g]);
       if (numberMap[num])        parts.push(numberMap[num]);
       break;
     }
-    case 'R': {
-      const [, t, d] = letters;
-      if (adverbTypeMap[t])       parts.push(adverbTypeMap[t]);
-      if (adverbDegreeMap[d])     parts.push(adverbDegreeMap[d]);
+
+    case 'P': {
+      const [, t, p_, g, num] = letters;
+      if (pronounTypeMap[t]) parts.push(pronounTypeMap[t]);
+      if (personMap[p_])     parts.push(personMap[p_]);
+      if (genderMap[g])      parts.push(genderMap[g]);
+      if (numberMap[num])    parts.push(numberMap[num]);
       break;
     }
+
+    case 'R': {
+      const [, t, deg] = letters;
+      if (adverbTypeMap[t])   parts.push(adverbTypeMap[t]);
+      if (adverbDegreeMap[deg]) parts.push(adverbDegreeMap[deg]);
+      break;
+    }
+
     case 'S': {
       const [, t, f] = letters;
-      if (adpositionTypeMap[t])   parts.push(adpositionTypeMap[t]);
-      if (adpositionFormMap[f])   parts.push(adpositionFormMap[f]);
+      if (adpositionTypeMap[t]) parts.push(adpositionTypeMap[t]);
+      if (adpositionFormMap[f]) parts.push(adpositionFormMap[f]);
       break;
     }
+
     case 'C': {
       const [, t, f] = letters;
-      if (conjunctionTypeMap[t])  parts.push(conjunctionTypeMap[t]);
-      if (conjunctionFormMap[f])  parts.push(conjunctionFormMap[f]);
+      if (conjunctionTypeMap[t]) parts.push(conjunctionTypeMap[t]);
+      if (conjunctionFormMap[f]) parts.push(conjunctionFormMap[f]);
       break;
     }
+
     case 'M': {
-      const [, f, t, g, df] = letters;
-      if (numeralFormMap[f])      parts.push(numeralFormMap[f]);
-      if (genderMap[g])           parts.push(genderMap[g]);
+      const [, f, , g] = letters;
+      if (numeralFormMap[f]) parts.push(numeralFormMap[f]);
+      if (genderMap[g])      parts.push(genderMap[g]);
       break;
     }
+
     case 'Q': {
       const [, f] = letters;
-      if (particleFormMap[f])     parts.push(particleFormMap[f]);
+      if (particleFormMap[f]) parts.push(particleFormMap[f]);
       break;
     }
+
     case 'X': {
       const [, t] = letters;
-      if (residualTypeMap[t])     parts.push(residualTypeMap[t]);
+      if (residualTypeMap[t]) parts.push(residualTypeMap[t]);
       break;
     }
-    case 'I':
-    case 'Y':
-    case 'Z':
+
     default:
       break;
   }
 
   return parts.join(', ');
+}
+
+
+// =======================
+// Grammar Explanation
+// =======================
+export function getGrammarExplanation(tag) {
+  return []; // placeholder, safe until we build full explanations
 }
