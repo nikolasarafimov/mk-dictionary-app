@@ -9,13 +9,11 @@ export default function WordDetails({ word }) {
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
 
-  // FAVORITES
   const handleFavorite = () => {
     const nowFav = toggleFavorite(word);
     setFav(nowFav);
   };
 
-  // COPY WORD
   const handleCopyWord = async () => {
     try {
       await navigator.clipboard.writeText(word.form);
@@ -24,7 +22,6 @@ export default function WordDetails({ word }) {
     } catch {}
   };
 
-  // SHARE
   const handleShare = async () => {
     const url = window.location.href;
 
@@ -36,7 +33,6 @@ export default function WordDetails({ word }) {
           url,
         });
       } else {
-        // fallback: copy to clipboard
         await navigator.clipboard.writeText(url);
         setShared(true);
         setTimeout(() => setShared(false), 1200);
@@ -50,7 +46,6 @@ export default function WordDetails({ word }) {
         <h2>{word.form}</h2>
 
         <div className="word-actions">
-          {/* FAVORITES */}
           <button
             type="button"
             className={`badge-button ${fav ? "badge-fav" : ""}`}
@@ -59,7 +54,6 @@ export default function WordDetails({ word }) {
             {fav ? "★ Омилен" : "☆ Додај во омилени"}
           </button>
 
-          {/* COPY */}
           <button
             type="button"
             className="badge-button"
@@ -68,7 +62,6 @@ export default function WordDetails({ word }) {
             📋 Копирај збор
           </button>
 
-          {/* SHARE */}
           <button
             type="button"
             className="badge-button"
@@ -78,7 +71,6 @@ export default function WordDetails({ word }) {
           </button>
         </div>
 
-        {/* TOASTS */}
         {copied && <span className="copy-toast">✓ Копирано!</span>}
         {shared && <span className="share-toast">✓ Линкот е копиран!</span>}
       </div>

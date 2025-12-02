@@ -80,10 +80,7 @@ function Home({
 
       <section className="search-wrapper">
         <SearchBar
-          term={searchInput}
-          onTermChange={onSearchInputChange}
           onSearch={onSearchSubmit}
-          suggestions={suggestions}
           onSuggestionSelect={onSuggestionSelect}
           disabled={isDbBusy}
         />
@@ -305,7 +302,6 @@ export default function App() {
     return () => clearTimeout(id);
   }, [searchInput]);
 
-  // 🔹 Suggestions effect
   useEffect(() => {
     let cancelled = false;
 
