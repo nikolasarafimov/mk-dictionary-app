@@ -23,7 +23,6 @@ import Footer from "./components/Footer";
 import Favorites from "./pages/Favorites";
 
 import {
-  runQuery,
   getTotalForms,
   getRandomForm,
   getWordsByLetter,
@@ -54,6 +53,7 @@ function Home({
 }) {
   return (
     <div className="home-container">
+
       <section className="home-hero card">
         <div className="hero-top">
           <h1 className="hero-title">Македонски дигитален речник</h1>
@@ -66,11 +66,10 @@ function Home({
           <div className="hero-stat">
             <span className="hero-stat-label">Форми во базата</span>
             <span className="hero-stat-value">
-              {totalWords
-                ? totalWords.toLocaleString("mk-MK")
-                : "Вчитување..."}
+              {totalWords ? totalWords.toLocaleString("mk-MK") : "Вчитување..."}
             </span>
           </div>
+
           <div className="hero-stat">
             <span className="hero-stat-label">Тип</span>
             <span className="hero-stat-value">монолингвален речник</span>
@@ -80,22 +79,11 @@ function Home({
 
       <section className="search-wrapper">
         <SearchBar
+          term={searchInput}
+          onTermChange={onSearchInputChange}
           onSearch={onSearchSubmit}
+          suggestions={suggestions}
           onSuggestionSelect={onSuggestionSelect}
-          disabled={isDbBusy}
-        />
-      </section>
-
-      <section className="home-alpha-section card">
-        <div className="card-header">
-          <h2>Азбучен индекс</h2>
-          <p className="card-subtitle">
-            Одберете буква за да ги прегледате зборовите што започнуваат со неа.
-          </p>
-        </div>
-        <LetterNav
-          selectedLetter={selectedLetter}
-          onLetterClick={onLetterClick}
           disabled={isDbBusy}
         />
       </section>
@@ -107,27 +95,35 @@ function Home({
       <section className="home-info card">
         <h2>За овој речник</h2>
         <p>
-          Речникот е изработен као дигитален ресурс кој овозможува брзо
-          пребарување на форми, леми и морфолошки ознаки на македонскиот јазик.
+          Речникот е дигитален ресурс кој овозможува брзо пребарување на форми,
+          леми и морфолошки ознаки на македонскиот јазик.
         </p>
+
         <ul>
-          <li>
-            <strong>Почетна страница</strong> – пребарување, азбучен индекс и
-            случаен збор.
-          </li>
-          <li>
-            <strong>Македонскиот јазик</strong> – информации за јазикот,
-            распространетост и лингвистички карактеристики.
-          </li>
-          <li>
-            <strong>Скратеници</strong> – листа на најчести скратеници и
-            нивните значења.
-          </li>
+          <li><strong>Почетна</strong> – пребарување, азбучен индекс, случаен збор.</li>
+          <li><strong>Македонски јазик</strong> – информации за јазикот.</li>
+          <li><strong>Скратеници</strong> – најчести скратеници и значења.</li>
+          <li><strong>Омилени</strong> – ваши омилени зборови.</li>
         </ul>
+
         <p className="home-author">
-          Автор: <strong>Никола Сарафимов</strong>, студент на ФИНКИ – III
-          година (ПИТ).
+          Автор: <strong>Никола Сарафимов</strong>
         </p>
+      </section>
+
+      <section className="home-alpha-section card">
+        <div className="card-header">
+          <h2>Азбучен индекс</h2>
+          <p className="card-subtitle">
+            Одберете буква за да ги прегледате зборовите што започнуваат со неа.
+          </p>
+        </div>
+
+        <LetterNav
+          selectedLetter={selectedLetter}
+          onLetterClick={onLetterClick}
+          disabled={isDbBusy}
+        />
       </section>
     </div>
   );
@@ -137,13 +133,11 @@ function ListPage({ words, onSelect, searchTerm }) {
   const { letter } = useParams();
   const label = letter || searchTerm;
 
-  if (!searchTerm && letter && words.length === 0) {
+  if (letter && words.length === 0 && !searchTerm) {
     return (
       <div className="list-page card">
         <h2>Азбучен индекс</h2>
-        <p>
-          За буквата „<strong>{letter}</strong>“ нема пронајдени зборови.
-        </p>
+        <p>За „<strong>{letter}</strong>“ нема резултати.</p>
       </div>
     );
   }
@@ -155,25 +149,24 @@ function ListPage({ words, onSelect, searchTerm }) {
   return (
     <div className="list-page-container">
       <div className="results-card">
+
         <div className="results-header">
           <h2 className="results-title">
             Резултати за: <span className="results-term">„{label}“</span>
           </h2>
-
-          <span className="results-badge">
-            {words.length.toLocaleString()} форми
-          </span>
+          <span className="results-badge">{words.length} форми</span>
         </div>
 
         <div className="results-list-wrapper">
           <WordList words={words} onSelect={onSelect} />
         </div>
+
       </div>
     </div>
   );
 }
 
-function DetailsByParam({ queryFn }) {
+function DetailsByParam() {
   const { form } = useParams();
   const navigate = useNavigate();
 
@@ -202,52 +195,53 @@ function DetailsByParam({ queryFn }) {
     }
 
     load();
-    return () => {
-      cancelled = true;
-    };
+    return () => (cancelled = true);
   }, [form]);
 
-  
-
-  if (!word) {
+  if (loading) {
     return (
-      <div className="details-page card not-found">
-        <p>
-          Поимот „<strong>{form}</strong>“ не е пронајден или не постои.
-        </p>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{ height: "150px" }}
+      />
     );
   }
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const q = e.target.search.value.trim();
-    if (!q) return;
-
-    const exact = await runQuery(
-      `SELECT form FROM words WHERE LOWER(form)=? LIMIT 1`,
-      [q.toLowerCase()]
+  if (!word) {
+    return (
+      <motion.div
+        className="details-page card not-found"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <p>Поимот „<strong>{form}</strong>“ не е пронајден.</p>
+      </motion.div>
     );
-
-    if (exact.length) {
-      navigate(`/details/${exact[0].form}`);
-    } else {
-      navigate(`/not-found/${q}`);
-    }
-  };
+  }
 
   return (
-    <div className="details-page">
-      <form onSubmit={handleSearch} className="search-bar search-bar-inline">
-        <input
-          name="search"
-          defaultValue={form}
-          placeholder="Пребарајте друг поим..."
+    <div className="details-layout">
+      <motion.div
+        className="details-search-wrapper"
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28 }}
+      >
+        <SearchBar
+          term={form}
+          onTermChange={() => {}}
+          onSearch={(q) => q.trim() && navigate(`/details/${q.trim()}`)}
+          suggestions={[]}
         />
-        <button type="submit">🔍</button>
-      </form>
+      </motion.div>
 
-      <div className="card word-details-card">
+      <motion.div
+        className="card word-details-card"
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
         <WordDetails word={word} />
 
         {similar.length > 0 && (
@@ -266,96 +260,65 @@ function DetailsByParam({ queryFn }) {
             </div>
           </section>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 export default function App() {
   const [totalWords, setTotalWords] = useState(0);
-
   const [filteredWords, setFiltered] = useState([]);
-  const [selectedLetter, setLetter] = useState(null);
 
+  const [selectedLetter, setLetter] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   const [isDbBusy, setIsDbBusy] = useState(false);
-
   const [suggestions, setSuggestions] = useState([]);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { pathname } = location;
-
-  useEffect(() => {
-    const trimmed = searchInput.trim();
-    if (!trimmed) {
-      setSearchTerm("");
-      return;
-    }
-
-    const id = setTimeout(() => {
-      setSearchTerm(trimmed);
-    }, 300);
-
-    return () => clearTimeout(id);
-  }, [searchInput]);
+  const pathname = location.pathname;
 
   useEffect(() => {
     let cancelled = false;
+    const q = searchInput.trim();
 
-    const trimmed = searchInput.trim();
-    if (!trimmed) {
+    if (!q) {
       setSuggestions([]);
       return;
     }
 
-    const id = setTimeout(async () => {
-      try {
-        const suggs = await getSearchSuggestions(trimmed);
-        if (!cancelled) {
-          setSuggestions(suggs);
-        }
-      } catch (err) {
-        console.error("Error loading suggestions:", err);
-        if (!cancelled) {
-          setSuggestions([]);
-        }
-      }
-    }, 200);
+    const timer = setTimeout(async () => {
+      const arr = await getSearchSuggestions(q);
+      if (!cancelled) setSuggestions(arr);
+    }, 180);
 
     return () => {
       cancelled = true;
-      clearTimeout(id);
+      clearTimeout(timer);
     };
   }, [searchInput]);
 
   useEffect(() => {
-    const m = pathname.match(/^\/list\/(.+)$/);
-    setLetter(m ? decodeURIComponent(m[1]) : null);
+    const match = pathname.match(/^\/list\/(.+)$/);
+    setLetter(match ? decodeURIComponent(match[1]) : null);
   }, [pathname]);
 
   useEffect(() => {
-    if (!pathname.startsWith("/home")) return;
-    if (totalWords) return;
+    if (!pathname.startsWith("/home") || totalWords) return;
 
     let cancelled = false;
 
     async function loadCount() {
-      try {
-        setIsDbBusy(true);
-        const cnt = await getTotalForms();
-        if (!cancelled) setTotalWords(cnt);
-      } finally {
-        if (!cancelled) setIsDbBusy(false);
-      }
+      setIsDbBusy(true);
+      const cnt = await getTotalForms();
+      if (!cancelled) setTotalWords(cnt);
+      setIsDbBusy(false);
     }
 
     loadCount();
-    return () => {
-      cancelled = true;
-    };
+    return () => (cancelled = true);
   }, [pathname, totalWords]);
 
   useEffect(() => {
@@ -367,53 +330,42 @@ export default function App() {
         return;
       }
 
-      try {
-        setIsDbBusy(true);
+      setIsDbBusy(true);
 
-        if (selectedLetter && pathname.startsWith("/list")) {
-          const rows = await getWordsByLetter(selectedLetter);
-          if (cancelled) return;
-          setFiltered(rows);
+      if (selectedLetter && pathname.startsWith("/list")) {
+        const rows = await getWordsByLetter(selectedLetter);
+        if (!cancelled) setFiltered(rows);
 
-          const desired = `/list/${selectedLetter}`;
-          if (pathname !== desired) {
-            navigate(desired, { replace: true });
-          }
+        navigate(`/list/${selectedLetter}`, { replace: true });
+        setIsDbBusy(false);
+        return;
+      }
+
+      if (searchTerm) {
+        const exact = await getWordByForm(searchTerm);
+
+        if (exact && !cancelled) {
+          navigate(`/details/${exact.form}`);
+          setIsDbBusy(false);
           return;
         }
 
-        if (searchTerm) {
-          const exact = await getWordByForm(searchTerm);
-          if (cancelled) return;
+        const rows = await searchForms(searchTerm);
+        if (!cancelled) setFiltered(rows);
 
-          if (exact) {
-            navigate(`/details/${exact.form}`);
-            return;
-          }
-
-          const rows = await searchForms(searchTerm);
-          if (cancelled) return;
-
-          setFiltered(rows);
-
-          if (rows.length) {
-            if (!pathname.startsWith("/list")) {
-              navigate("/list", { replace: true });
-            }
-          } else {
-            navigate(`/not-found/${searchTerm}`, { replace: true });
-          }
+        if (rows.length && !pathname.startsWith("/list")) {
+          navigate("/list", { replace: true });
+        } else if (!rows.length) {
+          navigate(`/not-found/${searchTerm}`, { replace: true });
         }
-      } finally {
-        if (!cancelled) setIsDbBusy(false);
       }
+
+      setIsDbBusy(false);
     }
 
     run();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedLetter, searchTerm, pathname, navigate]);
+    return () => (cancelled = true);
+  }, [selectedLetter, searchTerm, pathname]);
 
   const handleNavSelect = (key) => {
     if (key === "home") {
@@ -427,42 +379,37 @@ export default function App() {
     }
   };
 
-  const handleSearchInputChange = (value) => {
-    setSearchInput(value);
+  const handleSearchInputChange = (v) => {
+    setSearchInput(v);
     setLetter(null);
   };
 
-  const handleSearchSubmit = (term) => {
-    const trimmed = term.trim();
-    if (!trimmed) return;
-    setSearchInput(trimmed);
-    setSearchTerm(trimmed);
+  const handleSearchSubmit = (v) => {
+    const q = v.trim();
+    if (!q) return;
+    setSearchInput(q);
+    setSearchTerm(q);
     setSuggestions([]);
   };
 
-  const handleLetterClick = (letter) => {
-    setLetter(letter);
+  const handleLetterClick = (ltr) => {
+    setLetter(ltr);
     setSearchInput("");
     setSearchTerm("");
     setSuggestions([]);
-    navigate(`/list/${letter}`);
+    navigate(`/list/${ltr}`);
   };
 
   const handleRandom = async () => {
-    try {
-      setIsDbBusy(true);
-      const form = await getRandomForm();
-      if (form) {
-        navigate(`/details/${form}`);
-      }
-    } finally {
-      setIsDbBusy(false);
-    }
+    setIsDbBusy(true);
+    const f = await getRandomForm();
+    if (f) navigate(`/details/${f}`);
+    setIsDbBusy(false);
   };
 
-  const handleSuggestionSelect = (word) => {
-    setSearchInput(word);
-    setSearchTerm(word);
+  const handleSuggestionSelect = (w) => {
+    setSearchInput(w);
+    setSearchTerm(w);
     setSuggestions([]);
   };
 
@@ -478,6 +425,7 @@ export default function App() {
 
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
+
             <Route path="/" element={<Navigate to="/home" replace />} />
 
             <Route
@@ -507,9 +455,7 @@ export default function App() {
                   <ListPage
                     words={filteredWords}
                     searchTerm={searchTerm}
-                    onSelect={(w) => {
-                      navigate(`/details/${w.form}`);
-                    }}
+                    onSelect={(w) => navigate(`/details/${w.form}`)}
                   />
                 </motion.div>
               }
@@ -519,7 +465,7 @@ export default function App() {
               path="/details/:form"
               element={
                 <motion.div {...pageTransition}>
-                  <DetailsByParam queryFn={runQuery} />
+                  <DetailsByParam />
                 </motion.div>
               }
             />
@@ -551,12 +497,15 @@ export default function App() {
               }
             />
 
-            <Route 
-              path="/favorites" 
+            <Route
+              path="/favorites"
               element={
-                <Favorites />
-              } 
+                <motion.div {...pageTransition}>
+                  <Favorites />
+                </motion.div>
+              }
             />
+
           </Routes>
         </AnimatePresence>
       </main>

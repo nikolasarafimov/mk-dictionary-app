@@ -5,9 +5,13 @@ import { toggleFavorite, isFavorite } from "../utils/favoriteManager";
 export default function WordDetails({ word }) {
   if (!word) return null;
 
-  const [fav, setFav] = useState(isFavorite(word.form));
+  const [fav, setFav] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
+
+  useEffect(() => {
+    setFav(isFavorite(word.form));
+  }, [word.form]);
 
   const handleFavorite = () => {
     const nowFav = toggleFavorite(word);
@@ -19,7 +23,9 @@ export default function WordDetails({ word }) {
       await navigator.clipboard.writeText(word.form);
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
-    } catch {}
+    } catch {
+      console.warn("Failed to copy");
+    }
   };
 
   const handleShare = async () => {
@@ -37,13 +43,16 @@ export default function WordDetails({ word }) {
         setShared(true);
         setTimeout(() => setShared(false), 1200);
       }
-    } catch {}
+    } catch {
+      console.warn("Share cancelled or failed");
+    }
   };
 
   return (
     <div className="word-details">
+  
       <div className="word-details-header">
-        <h2>{word.form}</h2>
+        <h2 className="word-title">{word.form}</h2>
 
         <div className="word-actions">
           <button
@@ -75,17 +84,23 @@ export default function WordDetails({ word }) {
         {shared && <span className="share-toast">✓ Линкот е копиран!</span>}
       </div>
 
-      <p>
-        <strong>Потекло:</strong> {word.lemma || "—"}
-      </p>
+      <div className="word-info">
+        <p>
+          <strong>Потекло:</strong>{" "}
+          {word.lemma ? word.lemma : "—"}
+        </p>
 
-      <p>
-        <strong>Морфолошка ознака:</strong> {word.tag || "—"}
-      </p>
+        <p>
+          <strong>Морфолошка ознака:</strong>{" "}
+          {word.tag ? word.tag : "—"}
+        </p>
 
-      <p>
-        <strong>Опис:</strong> {decodeTag(word.tag) || "—"}
-      </p>
+        <p>
+          <strong>Опис:</strong>{" "}
+          {word.tag ? decodeTag(word.tag) : "—"}
+        </p>
+      </div>
+
     </div>
   );
 }
