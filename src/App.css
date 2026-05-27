@@ -1028,3 +1028,17 @@ a {
   justify-content: center;
   margin-top: 0.5rem;
 }
+
+.demo-notice {
+  margin: 18px auto;
+  padding: 14px 18px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background: rgba(99, 102, 241, 0.08);
+  color: inherit;
+}
+
+.demo-notice strong {
+  color: #6366f1;
+}

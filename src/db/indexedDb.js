@@ -1,7 +1,10 @@
 const DB_NAME = 'mk-dictionary-cache';
 const STORE_NAME = 'files';
-const DB_VERSION = 1;
-const DB_FILE_KEY = 'msd-mk.sqlite';
+const DB_VERSION = 2;
+
+const DB_FILE_KEY = import.meta.env.PROD
+  ? 'msd-mk-demo.sqlite'
+  : 'msd-mk.sqlite';
 
 function openIDB() {
   return new Promise((resolve, reject) => {

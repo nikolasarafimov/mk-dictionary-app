@@ -39,6 +39,8 @@ const pageTransition = {
   transition: { duration: 0.25 },
 };
 
+const IS_DEMO_BUILD = import.meta.env.PROD;
+
 function Home({
   searchInput,
   onSearchInputChange,
@@ -76,6 +78,15 @@ function Home({
           </div>
         </div>
       </section>
+
+      {IS_DEMO_BUILD && (
+        <section className="demo-notice card">
+          <strong>Demo version:</strong>{" "}
+          Оваа Live Demo верзија користи намалена база на податоци за побрзо
+          вчитување во browser. Целосната верзија со 1.3M+ македонски
+          збороформи е достапна во Source Code.
+        </section>
+      )}
 
       <section className="search-wrapper">
         <SearchBar

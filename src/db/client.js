@@ -1,5 +1,11 @@
 import { loadCachedDbFile, saveDbFile } from './indexedDb';
 
+const DB_FILE = import.meta.env.PROD
+  ? 'msd-mk-demo.sqlite'
+  : 'msd-mk.sqlite';
+
+const DB_URL = `${import.meta.env.BASE_URL}${DB_FILE}`;
+
 let worker = null;
 let pending = new Map();    
 let nextId = 1;
@@ -45,8 +51,14 @@ export async function initDbIfNeeded() {
     let buffer = await loadCachedDbFile();
 
     if (!buffer) {
-      const resp = await fetch('/msd-mk.sqlite');
+      const resp = await fetch(DB_URL);
+
+      if (!resp.ok) {
+        throw new Error(`Could not load database file: ${DB_URL}`);
+      }
+
       buffer = await resp.arrayBuffer();
+
       saveDbFile(buffer).catch(() => {
         console.warn('Could not cache DB in IndexedDB');
       });
