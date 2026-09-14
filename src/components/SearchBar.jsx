@@ -1,115 +1,287 @@
-import React, { useState, useEffect, useRef } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 export default function SearchBar({
   term,
   onTermChange,
   onSearch,
-  suggestions,
+  suggestions = [],
   onSuggestionSelect,
-  disabled,
+  disabled = false,
 }) {
-  const [open, setOpen] = useState(false);
-  const [highlighted, setHighlighted] = useState(-1);
+  const [
+    open,
+    setOpen,
+  ] = useState(false)
 
-  const containerRef = useRef(null);
+  const [
+    highlighted,
+    setHighlighted,
+  ] = useState(-1)
+
+  const containerRef =
+    useRef(null)
+
+  const listboxId =
+    useId()
+
+  const normalizedSuggestions =
+    useMemo(
+      () => {
+        if (!Array.isArray(suggestions)) {
+          return []
+        }
+
+        return [
+          ...new Set(
+            suggestions.filter(
+              (suggestion) =>
+                typeof suggestion === 'string'
+                && suggestion.trim(),
+            ),
+          ),
+        ]
+      },
+      [
+        suggestions,
+      ],
+    )
 
   useEffect(() => {
-    if (suggestions && suggestions.length > 0) {
-      setOpen(true);
-    } else {
-      setOpen(false);
-    }
-    setHighlighted(-1); 
-  }, [suggestions]);
+    setOpen(
+      normalizedSuggestions.length > 0,
+    )
+
+    setHighlighted(-1)
+  }, [normalizedSuggestions])
 
   useEffect(() => {
-    function handleClickOutside(e) {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false);
+    const handleClickOutside =
+      (event) => {
+        if (
+          containerRef.current
+          && !containerRef.current.contains(
+            event.target,
+          )
+        ) {
+          setOpen(false)
+          setHighlighted(-1)
+        }
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
-  const handleInput = (e) => {
-    const value = e.target.value;
-    onTermChange(value);
-  };
+    document.addEventListener(
+      'mousedown',
+      handleClickOutside,
+    )
+
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutside,
+      )
+    }
+  }, [])
+
+  const handleInput = (event) => {
+    onTermChange(
+      event.target.value,
+    )
+  }
 
   const handleSelect = (value) => {
-    onSuggestionSelect(value);
-    setOpen(false);
-  };
+    onSuggestionSelect(value)
 
-  const handleKeyDown = (e) => {
-    if (!open || suggestions.length === 0) return;
+    setOpen(false)
+    setHighlighted(-1)
+  }
 
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlighted((prev) =>
-        prev < suggestions.length - 1 ? prev + 1 : 0
-      );
+  const handleKeyDown = (event) => {
+    if (
+      event.key === 'Escape'
+      && open
+    ) {
+      event.preventDefault()
+
+      setOpen(false)
+      setHighlighted(-1)
+
+      return
     }
 
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setHighlighted((prev) =>
-        prev > 0 ? prev - 1 : suggestions.length - 1
-      );
+    if (
+      !open
+      || normalizedSuggestions.length === 0
+    ) {
+      return
     }
 
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (highlighted >= 0 && highlighted < suggestions.length) {
-        handleSelect(suggestions[highlighted]);
-      } else {
-        onSearch(term); 
-      }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+
+      setHighlighted(
+        (previousIndex) =>
+          previousIndex
+          < normalizedSuggestions.length - 1
+            ? previousIndex + 1
+            : 0,
+      )
+
+      return
     }
 
-    if (e.key === "Escape") {
-      setOpen(false);
-    }
-  };
+    if (event.key === 'ArrowUp') {
+      event.preventDefault()
 
-  const submit = (e) => {
-    e.preventDefault();
-    onSearch(term);
-    setOpen(false);
-  };
+      setHighlighted(
+        (previousIndex) =>
+          previousIndex > 0
+            ? previousIndex - 1
+            : normalizedSuggestions.length - 1,
+      )
+
+      return
+    }
+
+    if (
+      event.key === 'Enter'
+      && highlighted >= 0
+      && highlighted
+        < normalizedSuggestions.length
+    ) {
+      event.preventDefault()
+
+      handleSelect(
+        normalizedSuggestions[
+          highlighted
+        ],
+      )
+    }
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+
+    if (disabled) {
+      return
+    }
+
+    onSearch(term)
+
+    setOpen(false)
+    setHighlighted(-1)
+  }
+
+  const activeDescendant =
+    highlighted >= 0
+      ? `${listboxId}-option-${highlighted}`
+      : undefined
 
   return (
-    <div className="searchbar-container" ref={containerRef}>
-      <form onSubmit={submit} className="search-bar">
+    <div
+      className="searchbar-container"
+      ref={containerRef}
+    >
+      <form
+        className="search-bar"
+        role="search"
+        onSubmit={handleSubmit}
+      >
         <input
-          type="text"
+          type="search"
           value={term}
+          placeholder="Пребарувајте збор..."
+          aria-label="Пребарување во речникот"
+          aria-autocomplete="list"
+          aria-controls={
+            open
+              ? listboxId
+              : undefined
+          }
+          aria-expanded={open}
+          aria-activedescendant={
+            activeDescendant
+          }
+          autoComplete="off"
+          disabled={disabled}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder="Пребарувајте..."
-          disabled={disabled}
+          onFocus={() => {
+            if (
+              normalizedSuggestions.length > 0
+            ) {
+              setOpen(true)
+            }
+          }}
         />
-        <button type="submit" disabled={disabled}>
-          🔍
+
+        <button
+          type="submit"
+          disabled={disabled}
+          aria-label="Пребарај"
+          title="Пребарај"
+        >
+          <span aria-hidden="true">
+            🔍
+          </span>
         </button>
       </form>
 
-      {open && suggestions.length > 0 && (
-        <ul className="suggestion-dropdown">
-          {suggestions.map((s, i) => (
-            <li
-              key={i}
-              className={`suggestion-item ${
-                i === highlighted ? "highlighted" : ""
-              }`}
-              onMouseDown={() => handleSelect(s)} 
-            >
-              {s}
-            </li>
-          ))}
-        </ul>
-      )}
+      {open
+        && normalizedSuggestions.length > 0
+        && (
+          <ul
+            id={listboxId}
+            className="suggestion-dropdown"
+            role="listbox"
+            aria-label="Предлози за пребарување"
+          >
+            {normalizedSuggestions.map(
+              (suggestion, index) => {
+                const isHighlighted =
+                  index === highlighted
+
+                return (
+                  <li
+                    id={
+                      `${listboxId}-option-${index}`
+                    }
+                    key={suggestion}
+                    className={
+                      `suggestion-item ${
+                        isHighlighted
+                          ? 'highlighted'
+                          : ''
+                      }`
+                    }
+                    role="option"
+                    aria-selected={
+                      isHighlighted
+                    }
+                    onMouseEnter={() =>
+                      setHighlighted(index)
+                    }
+                    onMouseDown={
+                      (event) => {
+                        event.preventDefault()
+
+                        handleSelect(
+                          suggestion,
+                        )
+                      }
+                    }
+                  >
+                    {suggestion}
+                  </li>
+                )
+              },
+            )}
+          </ul>
+        )}
     </div>
-  );
+  )
 }

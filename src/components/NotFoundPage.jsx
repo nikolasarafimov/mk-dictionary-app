@@ -1,13 +1,34 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom'
 
 export default function NotFoundPage() {
-   const { term } = useParams();
+  const {
+    term,
+  } = useParams()
+
+  const displayTerm =
+    term?.trim() || 'Бараниот поим'
+
   return (
-    <div className="list-page not-found">
+    <section
+      className="list-page not-found"
+      aria-live="polite"
+    >
+      <h2>
+        Поимот не е пронајден
+      </h2>
+
       <p>
-        Поимот „<strong>{term}</strong>“ не е пронајден или не постои!
+        „
+        <strong>
+          {displayTerm}
+        </strong>
+        “ не е пронајден во речникот.
       </p>
-    </div>
-  );
+
+      <p>
+        Проверете го правописот или обидете се
+        со друг збор.
+      </p>
+    </section>
+  )
 }

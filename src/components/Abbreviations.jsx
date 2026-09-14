@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import {
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
 const GROUP_NAMES = [
   'Прва група',
@@ -8,21 +10,22 @@ const GROUP_NAMES = [
   'Четврта група',
   'Петта група',
   'Шеста група',
-  'Седма група'
-];
+  'Седма група',
+]
 
 const GROUP_DESCRIPTIONS = [
   'Во оваа група на скратеници влегуваат зборови кои се скратуваат со тоа што се пишуваат само почетните букви наместо целиот збор. Така дел од оваа група се:',
-  'Втора група на скратеници опфаќа скратеници кои се со латинско потекло или други странски зборови. Скратувањето е исто како и во првата група на скареници. Во оваа група се:',
+  'Втората група на скратеници опфаќа скратеници кои се со латинско потекло или други странски зборови. Скратувањето е исто како и во првата група на скратеници. Во оваа група се:',
   'Третата група скратеници се скратеници што се добиваат со скратување на зборовите до првата самогласка или согласка во зборот. Така имаме:',
   'Оваа група опфаќа скратеници што се добиени со скратување на зборот до првиот слог, односно до согласката на вториот слог. Така имаме:',
   'За мерките од метричкиот систем и за други мерки и големини се употребуваат следниве скратеници:',
   'Со поврзувањето на првата и последната буква или последниот слог се добиваат скратеници како:',
-  'Посебен вид на скратеници се скратениците кои се составени од првите букви на сложени називи:'
-];
+  'Посебен вид на скратеници се скратениците кои се составени од првите букви на сложени називи:',
+]
 
 const ABBREV_DATA = [
-  { items: [
+  {
+    items: [
       'в. – види, век, весник',
       'в.д. – вршител на должност',
       'г. – господин',
@@ -39,20 +42,22 @@ const ABBREV_DATA = [
       'ср.р. – среден род',
       'т. – точка',
       'т.е. – тоа ест',
-      'т.н. – таканаречен'
-    ]
+      'т.н. – таканаречен',
+    ],
   },
-  { items: [
+  {
+    items: [
       'm. – masculinum / машки род',
       'f. – femininum / женски род',
       'n. – neutrum / среден род',
       'l.c. – loco citato / на приведеното место',
       'o.c. – opus citatum / приведеното дело',
       'a.a. – ad acta / во актите',
-      'p.s. или P.S. – post scriptum / по писмото'
-    ]
+      'p.s. или P.S. – post scriptum / по писмото',
+    ],
   },
-  { items: [
+  {
+    items: [
       'бр. – број',
       'гр. – град',
       'д-р – доктор',
@@ -71,10 +76,11 @@ const ABBREV_DATA = [
       'стр. – страница',
       'ст. ст. – стар стил',
       'чл. – член',
-      'итн. – и така натаму'
-    ]
+      'итн. – и така натаму',
+    ],
   },
-  { items: [
+  {
+    items: [
       'арх. – архитект',
       'бел. или забел. – белешка, забелешка',
       'гимн. – гимназија',
@@ -113,10 +119,11 @@ const ABBREV_DATA = [
       'зоол. – зоологија',
       'стсл. – старословенски',
       'пф. – перфективен',
-      'импф. – имперфективен'
-    ]
+      'импф. – имперфективен',
+    ],
   },
-  { items: [
+  {
+    items: [
       'м – метар',
       'мм – милиметар',
       'см – сантиметар',
@@ -132,20 +139,22 @@ const ABBREV_DATA = [
       'хл – хектолитар',
       'дкл – декалитар',
       'л – литар',
-      'дл – децилитар'
-    ]
+      'дл – децилитар',
+    ],
   },
-  { items: [
+  {
+    items: [
       'д-р – доктор',
       'м-р – магистер',
       'г-ѓа – госпоѓа',
       'г-а – госпоѓа',
       'г-ца – господичка',
       'г. – господин',
-      'г.г. – господин господин'
-    ]
+      'г.г. – господин господин',
+    ],
   },
-  { items: [
+  {
+    items: [
       'АСНОМ – Антифашистичко собрание на народното ослободување на Македонија',
       'НОБ – Народноослободителна борба',
       'ВМРО – Внатрешна македонска револуционерна организација',
@@ -167,69 +176,127 @@ const ABBREV_DATA = [
       'ЗИК – Земјоделско-индустриски комбинат',
       'ИК – Извршен комитет',
       'ЦО – Централен одбор',
-      'ФИФА, УНИЦЕФ, УНРРА, АФП'
-    ]
-  }
-];
+      'ФИФА, УНИЦЕФ, УНРРА, АФП',
+    ],
+  },
+]
 
 export default function Abbreviations() {
-  const { group } = useParams();              
-  const navigate = useNavigate();
+  const {
+    group,
+  } = useParams()
 
-  const parsed = parseInt(group, 10);
-  const validGroup = (parsed >= 1 && parsed <= GROUP_NAMES.length) ? parsed : 1;
+  const navigate =
+    useNavigate()
 
-  const [groupIdx, setGroupIdx] = useState(validGroup - 1);
+  const parsedGroup =
+    Number.parseInt(
+      group,
+      10,
+    )
 
-  useEffect(() => {
-    const p = parseInt(group, 10);
-    const g = (p >= 1 && p <= GROUP_NAMES.length) ? p : 1;
-    setGroupIdx(g - 1);
-  }, [group]);
+  const validGroup =
+    Number.isInteger(parsedGroup)
+    && parsedGroup >= 1
+    && parsedGroup <= GROUP_NAMES.length
+      ? parsedGroup
+      : 1
 
-  const description = GROUP_DESCRIPTIONS[groupIdx];
-  const items = ABBREV_DATA[groupIdx].items;
+  const groupIndex =
+    validGroup - 1
+
+  const description =
+    GROUP_DESCRIPTIONS[groupIndex]
+
+  const items =
+    ABBREV_DATA[groupIndex].items
 
   return (
     <section className="abbreviations">
-      <h2>Скратеници</h2>
+      <h2>
+        Скратеници
+      </h2>
+
       <p className="intro">
-        Скратениците во македонскиот јазик се добиваат со скратување на зборови или спојување на почетни букви
-        во сложени називи. За полесно наоѓање, тие се поделени во седум групи според видот на скратувањето.
+        Скратениците во македонскиот јазик се
+        добиваат со скратување на зборови или
+        спојување на почетни букви во сложени
+        називи. За полесно наоѓање, тие се
+        поделени во седум групи според видот
+        на скратувањето.
       </p>
 
       <div className="abbr-groups">
-        {GROUP_NAMES.map((name, i) => (
-          <button
-            key={i}
-            className={i === groupIdx ? 'active' : ''}
-            onClick={() => {
-              navigate(`/abbr/${i + 1}`);
-              setGroupIdx(i);
-            }}
-          >
-            {name}
-          </button>
-        ))}
+        {GROUP_NAMES.map(
+          (name, index) => {
+            const groupNumber =
+              index + 1
+
+            const isActive =
+              index === groupIndex
+
+            return (
+              <button
+                key={name}
+                type="button"
+                className={
+                  isActive
+                    ? 'active'
+                    : ''
+                }
+                aria-pressed={
+                  isActive
+                }
+                onClick={() =>
+                  navigate(
+                    `/abbr/${groupNumber}`,
+                  )
+                }
+              >
+                {name}
+              </button>
+            )
+          },
+        )}
       </div>
 
-      <p className="abbr-intro">{description}</p>
+      <p className="abbr-intro">
+        {description}
+      </p>
 
       {items.length === 0 ? (
-        <p className="no-abbr">Нема кратенки во оваа група.</p>
+        <p className="no-abbr">
+          Нема скратеници во оваа група.
+        </p>
       ) : (
         <div className="abbr-grid">
-          {items.map((item, idx) => {
-            const [abbr, meaning] = item.split(/\s*–\s*/);
-            return (
-              <div key={idx} className="abbr-item">
-                <strong className="abbr-key">{abbr}</strong>
-                <span className="abbr-meaning">{meaning}</span>
-              </div>
-            );
-          })}
+          {items.map(
+            (item) => {
+              const [
+                abbreviation,
+                meaning = '',
+              ] = item.split(
+                /\s*–\s*/,
+              )
+
+              return (
+                <div
+                  key={item}
+                  className="abbr-item"
+                >
+                  <strong className="abbr-key">
+                    {abbreviation}
+                  </strong>
+
+                  <span className="abbr-meaning">
+                    {meaning}
+                  </span>
+                </div>
+              )
+            },
+          )}
         </div>
       )}
     </section>
-  );
+  )
 }

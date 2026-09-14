@@ -1,13 +1,16 @@
-import React from 'react';
-
-export default function RandomWordButton({ onRandom, disabled }) {
+export default function RandomWordButton({
+  onRandom,
+  disabled,
+}) {
   return (
     <button
+      type="button"
       className="random-word"
-      onClick={disabled ? undefined : onRandom}
+      onClick={onRandom}
       disabled={disabled}
+      aria-label="Прикажи случаен збор"
     >
       Случаен збор
     </button>
-  );
+  )
 }

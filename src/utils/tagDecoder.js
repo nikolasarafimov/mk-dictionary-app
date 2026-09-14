@@ -11,38 +11,60 @@ export const posMap = {
   I: 'интерјекција',
   Y: 'кратенка',
   X: 'резидуален',
-  Z: 'интерпункција'
-};
+  Z: 'интерпункција',
+}
 
+export const nounTypeMap = {
+  c: 'општа',
+  p: 'сопствена',
+}
 
-// Nouns
-export const nounTypeMap = { c: 'општа', p: 'сопствена' };
-export const genderMap  = { m: 'машки род', f: 'женски род', n: 'среден род' };
-export const numberMap  = { s: 'еднина', p: 'множина' };
+export const genderMap = {
+  m: 'машки род',
+  f: 'женски род',
+  n: 'среден род',
+}
 
-// Verbs
-export const verbTypeMap   = { m: 'главен', a: 'помошен', o: 'модален' };
-export const aspectMap     = { p: 'несвршен', e: 'свршен' };
-export const tenseMap      = {
+export const numberMap = {
+  s: 'еднина',
+  p: 'множина',
+}
+
+export const verbTypeMap = {
+  m: 'главен',
+  a: 'помошен',
+  o: 'модален',
+}
+
+export const aspectMap = {
+  p: 'несвршен',
+  e: 'свршен',
+}
+
+export const tenseMap = {
   p: 'сегашно време',
   i: 'несвршено минато',
   a: 'аорист',
-  c: 'сложено време'
-};
-export const personMap     = { 1: 'прво лице', 2: 'второ лице', 3: 'трето лице' };
+  c: 'сложено време',
+}
 
-// Adjectives
+export const personMap = {
+  1: 'прво лице',
+  2: 'второ лице',
+  3: 'трето лице',
+}
+
 export const adjectiveTypeMap = {
   g: 'општа',
-  s: 'сопственa',
-};
+  s: 'сопствена',
+}
+
 export const adjectiveDegreeMap = {
   p: 'позитивна форма',
   c: 'компаратна (споредбена)',
-  s: 'суперлативна'
-};
+  s: 'суперлативна',
+}
 
-// Pronouns
 export const pronounTypeMap = {
   p: 'личен',
   d: 'демонстративен',
@@ -51,37 +73,52 @@ export const pronounTypeMap = {
   r: 'релационен',
   x: 'рефлексивен',
   z: 'негативен',
-  g: 'општ'
-};
+  g: 'општ',
+}
 
-// Adverbs
-export const adverbTypeMap   = {
+export const adverbTypeMap = {
   g: 'општ прилог',
   a: 'прилог-придавка',
   v: 'вербален прилог',
-  d: 'модален прилог'
-};
+  d: 'модален прилог',
+}
+
 export const adverbDegreeMap = {
   p: 'позитивна форма',
   c: 'компаратна (споредбена)',
-  s: 'суперлативна'
-};
+  s: 'суперлативна',
+}
 
-// Adpositions
-export const adpositionTypeMap = { p: 'прост предлог' };
-export const adpositionFormMap = { s: 'прост', c: 'сложен' };
+export const adpositionTypeMap = {
+  p: 'прост предлог',
+}
 
-// Conjunctions
-export const conjunctionTypeMap = { c: 'координативен', s: 'субординативен' };
-export const conjunctionFormMap = { s: 'прост', c: 'сложен' };
+export const adpositionFormMap = {
+  s: 'прост',
+  c: 'сложен',
+}
 
-// Numerals
-export const numeralFormMap = { d: 'арапска цифра', r: 'римска цифра', l: 'со букви' };
+export const conjunctionTypeMap = {
+  c: 'координативен',
+  s: 'субординативен',
+}
 
-// Particles
-export const particleFormMap = { s: 'проста честичка', c: 'сложена честичка' };
+export const conjunctionFormMap = {
+  s: 'прост',
+  c: 'сложен',
+}
 
-// Residual
+export const numeralFormMap = {
+  d: 'арапска цифра',
+  r: 'римска цифра',
+  l: 'со букви',
+}
+
+export const particleFormMap = {
+  s: 'проста честичка',
+  c: 'сложена честичка',
+}
+
 export const residualTypeMap = {
   f: 'странски збор',
   t: 'типографска грешка',
@@ -89,99 +126,310 @@ export const residualTypeMap = {
   e: 'емоџи',
   h: 'хаштагови',
   a: '„@“ ознака',
-  p: 'име на програма'
-};
+  p: 'име на програма',
+}
+
+function addMappedValue(parts, map, key) {
+  const value = map[key]
+
+  if (value) {
+    parts.push(value)
+  }
+}
 
 export function decodeTag(tag) {
-  if (!tag) return 'Нема морфолошка ознака!';
+  if (
+    typeof tag !== 'string'
+    || !tag.trim()
+  ) {
+    return 'Нема морфолошка ознака.'
+  }
 
-  const letters = tag.split('');
-  const pos = letters[0];
-  const parts = [];
+  const letters = tag.trim().split('')
+  const pos = letters[0]
+  const parts = []
 
-  if (posMap[pos]) parts.push(posMap[pos]);
+  addMappedValue(
+    parts,
+    posMap,
+    pos,
+  )
 
   switch (pos) {
     case 'N': {
-      const [, t, g, num] = letters;
-      if (nounTypeMap[t])  parts.push(nounTypeMap[t]);
-      if (genderMap[g])    parts.push(genderMap[g]);
-      if (numberMap[num])  parts.push(numberMap[num]);
-      break;
+      const [, type, gender, number] =
+        letters
+
+      addMappedValue(
+        parts,
+        nounTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        genderMap,
+        gender,
+      )
+
+      addMappedValue(
+        parts,
+        numberMap,
+        number,
+      )
+
+      break
     }
 
     case 'V': {
-      const [, t, asp, , tn, p, num, g] = letters;
-      if (verbTypeMap[t]) parts.push(verbTypeMap[t]);
-      if (aspectMap[asp]) parts.push(aspectMap[asp]);
-      if (tenseMap[tn])   parts.push(tenseMap[tn]);
-      if (personMap[p])   parts.push(personMap[p]);
-      if (numberMap[num]) parts.push(numberMap[num]);
-      if (genderMap[g])   parts.push(genderMap[g]);
-      break;
+      const [
+        ,
+        type,
+        aspect,
+        ,
+        tense,
+        person,
+        number,
+        gender,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        verbTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        aspectMap,
+        aspect,
+      )
+
+      addMappedValue(
+        parts,
+        tenseMap,
+        tense,
+      )
+
+      addMappedValue(
+        parts,
+        personMap,
+        person,
+      )
+
+      addMappedValue(
+        parts,
+        numberMap,
+        number,
+      )
+
+      addMappedValue(
+        parts,
+        genderMap,
+        gender,
+      )
+
+      break
     }
 
     case 'A': {
-      const [, t, deg, g, num] = letters;
-      if (adjectiveTypeMap[t])   parts.push(adjectiveTypeMap[t]);
-      if (adjectiveDegreeMap[deg]) parts.push(adjectiveDegreeMap[deg]);
-      if (genderMap[g])          parts.push(genderMap[g]);
-      if (numberMap[num])        parts.push(numberMap[num]);
-      break;
+      const [
+        ,
+        type,
+        degree,
+        gender,
+        number,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        adjectiveTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        adjectiveDegreeMap,
+        degree,
+      )
+
+      addMappedValue(
+        parts,
+        genderMap,
+        gender,
+      )
+
+      addMappedValue(
+        parts,
+        numberMap,
+        number,
+      )
+
+      break
     }
 
     case 'P': {
-      const [, t, p_, g, num] = letters;
-      if (pronounTypeMap[t]) parts.push(pronounTypeMap[t]);
-      if (personMap[p_])     parts.push(personMap[p_]);
-      if (genderMap[g])      parts.push(genderMap[g]);
-      if (numberMap[num])    parts.push(numberMap[num]);
-      break;
+      const [
+        ,
+        type,
+        person,
+        gender,
+        number,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        pronounTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        personMap,
+        person,
+      )
+
+      addMappedValue(
+        parts,
+        genderMap,
+        gender,
+      )
+
+      addMappedValue(
+        parts,
+        numberMap,
+        number,
+      )
+
+      break
     }
 
     case 'R': {
-      const [, t, deg] = letters;
-      if (adverbTypeMap[t])   parts.push(adverbTypeMap[t]);
-      if (adverbDegreeMap[deg]) parts.push(adverbDegreeMap[deg]);
-      break;
+      const [
+        ,
+        type,
+        degree,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        adverbTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        adverbDegreeMap,
+        degree,
+      )
+
+      break
     }
 
     case 'S': {
-      const [, t, f] = letters;
-      if (adpositionTypeMap[t]) parts.push(adpositionTypeMap[t]);
-      if (adpositionFormMap[f]) parts.push(adpositionFormMap[f]);
-      break;
+      const [
+        ,
+        type,
+        form,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        adpositionTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        adpositionFormMap,
+        form,
+      )
+
+      break
     }
 
     case 'C': {
-      const [, t, f] = letters;
-      if (conjunctionTypeMap[t]) parts.push(conjunctionTypeMap[t]);
-      if (conjunctionFormMap[f]) parts.push(conjunctionFormMap[f]);
-      break;
+      const [
+        ,
+        type,
+        form,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        conjunctionTypeMap,
+        type,
+      )
+
+      addMappedValue(
+        parts,
+        conjunctionFormMap,
+        form,
+      )
+
+      break
     }
 
     case 'M': {
-      const [, f, , g] = letters;
-      if (numeralFormMap[f]) parts.push(numeralFormMap[f]);
-      if (genderMap[g])      parts.push(genderMap[g]);
-      break;
+      const [
+        ,
+        form,
+        ,
+        gender,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        numeralFormMap,
+        form,
+      )
+
+      addMappedValue(
+        parts,
+        genderMap,
+        gender,
+      )
+
+      break
     }
 
     case 'Q': {
-      const [, f] = letters;
-      if (particleFormMap[f]) parts.push(particleFormMap[f]);
-      break;
+      const [
+        ,
+        form,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        particleFormMap,
+        form,
+      )
+
+      break
     }
 
     case 'X': {
-      const [, t] = letters;
-      if (residualTypeMap[t]) parts.push(residualTypeMap[t]);
-      break;
+      const [
+        ,
+        type,
+      ] = letters
+
+      addMappedValue(
+        parts,
+        residualTypeMap,
+        type,
+      )
+
+      break
     }
 
     default:
-      break;
+      break
   }
 
-  return parts.join(', ');
+  if (parts.length === 0) {
+    return 'Непозната морфолошка ознака.'
+  }
+
+  return parts.join(', ')
 }

@@ -1,45 +1,96 @@
-import React, { useState, useEffect } from "react";
 import {
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-  useParams,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
+
+import {
   Navigate,
-} from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
-
-import LoadingOverlay from "./components/LoadingOverlay";
-import NavBar from "./components/NavBar";
-import SearchBar from "./components/SearchBar";
-import LetterNav from "./components/LetterNav";
-import WordList from "./components/WordList";
-import WordDetails from "./components/WordDetails";
-import RandomWordButton from "./components/RandomWordButton";
-import LanguageInfo from "./components/LanguageInfo";
-import Abbreviations from "./components/Abbreviations";
-import NotFoundPage from "./components/NotFoundPage";
-import Footer from "./components/Footer";
-import Favorites from "./pages/Favorites";
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 
 import {
-  getTotalForms,
+  AnimatePresence,
+  motion,
+} from 'framer-motion'
+
+import Abbreviations
+  from './components/Abbreviations'
+import Footer
+  from './components/Footer'
+import LanguageInfo
+  from './components/LanguageInfo'
+import LetterNav
+  from './components/LetterNav'
+import LoadingOverlay
+  from './components/LoadingOverlay'
+import NavBar
+  from './components/NavBar'
+import NotFoundPage
+  from './components/NotFoundPage'
+import RandomWordButton
+  from './components/RandomWordButton'
+import SearchBar
+  from './components/SearchBar'
+import WordDetails
+  from './components/WordDetails'
+import WordList
+  from './components/WordList'
+
+import Favorites
+  from './pages/Favorites'
+
+import {
   getRandomForm,
-  getWordsByLetter,
-  getWordByForm,
-  searchForms,
-  getSimilarForms,
   getSearchSuggestions,
-} from "./db/client";
+  getSimilarForms,
+  getTotalForms,
+  getWordByForm,
+  getWordsByLetter,
+  searchForms,
+} from './db/client'
+
 
 const pageTransition = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
-  transition: { duration: 0.25 },
-};
+  initial: {
+    opacity: 0,
+    y: 8,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+  },
+  transition: {
+    duration: 0.25,
+  },
+}
 
-const IS_DEMO_BUILD = import.meta.env.PROD;
+const IS_DEMO_BUILD =
+  import.meta.env.PROD
+
+
+function buildDetailsPath(form) {
+  return `/details/${encodeURIComponent(form)}`
+}
+
+
+function buildNotFoundPath(term) {
+  return `/not-found/${encodeURIComponent(term)}`
+}
+
+
+function buildLetterPath(letter) {
+  return `/list/${encodeURIComponent(letter)}`
+}
+
 
 function Home({
   searchInput,
@@ -55,405 +106,1077 @@ function Home({
 }) {
   return (
     <div className="home-container">
-
       <section className="home-hero card">
         <div className="hero-top">
-          <h1 className="hero-title">Македонски дигитален речник</h1>
+          <h1 className="hero-title">
+            Македонски дигитален речник
+          </h1>
+
           <p className="hero-subtitle">
-            Интерактивен, модерен и отворен ресурс за македонскиот јазик.
+            Интерактивен и современ дигитален
+            ресурс за пребарување и истражување
+            на македонскиот јазик.
           </p>
         </div>
 
         <div className="hero-meta">
           <div className="hero-stat">
-            <span className="hero-stat-label">Форми во базата</span>
+            <span className="hero-stat-label">
+              Форми во базата
+            </span>
+
             <span className="hero-stat-value">
-              {totalWords ? totalWords.toLocaleString("mk-MK") : "Вчитување..."}
+              {totalWords === null
+                ? 'Вчитување…'
+                : totalWords.toLocaleString(
+                    'mk-MK',
+                  )}
             </span>
           </div>
 
           <div className="hero-stat">
-            <span className="hero-stat-label">Тип</span>
-            <span className="hero-stat-value">монолингвален речник</span>
+            <span className="hero-stat-label">
+              Тип
+            </span>
+
+            <span className="hero-stat-value">
+              еднојазичен дигитален речник
+            </span>
           </div>
         </div>
       </section>
 
       {IS_DEMO_BUILD && (
         <section className="demo-notice card">
-          <strong>Demo version:</strong>{" "}
-          Оваа Live Demo верзија користи намалена база на податоци за побрзо
-          вчитување во browser. Целосната верзија со 1.3M+ македонски
-          збороформи е достапна во Source Code.
+          <strong>
+            Демо-верзија:
+          </strong>
+          {' '}
+          Јавната верзија користи намалена
+          база на податоци за побрзо
+          вчитување во прелистувачот.
+          Целосната база со повеќе од
+          1,3 милиони македонски збороформи
+          е вклучена во изворниот проект.
         </section>
       )}
 
       <section className="search-wrapper">
         <SearchBar
           term={searchInput}
-          onTermChange={onSearchInputChange}
-          onSearch={onSearchSubmit}
-          suggestions={suggestions}
-          onSuggestionSelect={onSuggestionSelect}
-          disabled={isDbBusy}
+          onTermChange={
+            onSearchInputChange
+          }
+          onSearch={
+            onSearchSubmit
+          }
+          suggestions={
+            suggestions
+          }
+          onSuggestionSelect={
+            onSuggestionSelect
+          }
+          disabled={
+            isDbBusy
+          }
         />
       </section>
 
       <section className="home-random-section">
-        <RandomWordButton onRandom={onRandom} disabled={isDbBusy} />
+        <RandomWordButton
+          onRandom={onRandom}
+          disabled={isDbBusy}
+        />
       </section>
 
       <section className="home-info card">
-        <h2>За овој речник</h2>
+        <h2>
+          За овој речник
+        </h2>
+
         <p>
-          Речникот е дигитален ресурс кој овозможува брзо пребарување на форми,
-          леми и морфолошки ознаки на македонскиот јазик.
+          Речникот е дигитален ресурс што
+          овозможува брзо пребарување на
+          збороформи, леми и морфолошки
+          ознаки на македонскиот јазик.
         </p>
 
         <ul>
-          <li><strong>Почетна</strong> – пребарување, азбучен индекс, случаен збор.</li>
-          <li><strong>Македонски јазик</strong> – информации за јазикот.</li>
-          <li><strong>Скратеници</strong> – најчести скратеници и значења.</li>
-          <li><strong>Омилени</strong> – ваши омилени зборови.</li>
+          <li>
+            <strong>
+              Почетна
+            </strong>
+            {' '}
+            — пребарување, азбучен индекс
+            и случаен збор.
+          </li>
+
+          <li>
+            <strong>
+              Македонски јазик
+            </strong>
+            {' '}
+            — основни информации за
+            македонскиот јазик.
+          </li>
+
+          <li>
+            <strong>
+              Скратеници
+            </strong>
+            {' '}
+            — групи на скратеници и
+            нивните значења.
+          </li>
+
+          <li>
+            <strong>
+              Омилени
+            </strong>
+            {' '}
+            — локално зачувани омилени
+            зборови.
+          </li>
         </ul>
 
         <p className="home-author">
-          Автор: <strong>Никола Сарафимов</strong>
+          Автор:{' '}
+          <strong>
+            Никола Сарафимов
+          </strong>
         </p>
       </section>
 
       <section className="home-alpha-section card">
         <div className="card-header">
-          <h2>Азбучен индекс</h2>
+          <h2>
+            Азбучен индекс
+          </h2>
+
           <p className="card-subtitle">
-            Одберете буква за да ги прегледате зборовите што започнуваат со неа.
+            Одберете буква за да ги
+            прегледате зборовите што
+            започнуваат со неа.
           </p>
         </div>
 
         <LetterNav
-          selectedLetter={selectedLetter}
-          onLetterClick={onLetterClick}
-          disabled={isDbBusy}
+          selectedLetter={
+            selectedLetter
+          }
+          onLetterClick={
+            onLetterClick
+          }
+          disabled={
+            isDbBusy
+          }
         />
       </section>
     </div>
-  );
+  )
 }
 
-function ListPage({ words, onSelect, searchTerm }) {
-  const { letter } = useParams();
-  const label = letter || searchTerm;
 
-  if (letter && words.length === 0 && !searchTerm) {
+function ListPage({
+  words,
+  onSelect,
+  searchTerm,
+}) {
+  const {
+    letter,
+  } = useParams()
+
+  if (!letter && !searchTerm) {
     return (
-      <div className="list-page card">
-        <h2>Азбучен индекс</h2>
-        <p>За „<strong>{letter}</strong>“ нема резултати.</p>
-      </div>
-    );
+      <Navigate
+        to="/home"
+        replace
+      />
+    )
   }
 
-  if (searchTerm && words.length === 0) {
-    return <Navigate to={`/not-found/${searchTerm}`} replace />;
+  const label =
+    letter || searchTerm
+
+  if (
+    letter
+    && words.length === 0
+    && !searchTerm
+  ) {
+    return (
+      <section className="list-page card">
+        <h2>
+          Азбучен индекс
+        </h2>
+
+        <p>
+          За „
+          <strong>
+            {letter}
+          </strong>
+          “ нема резултати.
+        </p>
+      </section>
+    )
+  }
+
+  if (
+    searchTerm
+    && words.length === 0
+  ) {
+    return (
+      <Navigate
+        to={
+          buildNotFoundPath(
+            searchTerm,
+          )
+        }
+        replace
+      />
+    )
   }
 
   return (
     <div className="list-page-container">
-      <div className="results-card">
-
+      <section className="results-card">
         <div className="results-header">
           <h2 className="results-title">
-            Резултати за: <span className="results-term">„{label}“</span>
+            Резултати за:{' '}
+            <span className="results-term">
+              „{label}“
+            </span>
           </h2>
-          <span className="results-badge">{words.length} форми</span>
+
+          <span className="results-badge">
+            {words.length.toLocaleString(
+              'mk-MK',
+            )}
+            {' '}
+            форми
+          </span>
         </div>
 
         <div className="results-list-wrapper">
-          <WordList words={words} onSelect={onSelect} />
+          <WordList
+            words={words}
+            onSelect={onSelect}
+          />
         </div>
-
-      </div>
+      </section>
     </div>
-  );
+  )
 }
 
-function DetailsByParam() {
-  const { form } = useParams();
-  const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [word, setWord] = useState(null);
-  const [similar, setSimilar] = useState([]);
+function DetailsByParam({
+  onSearch,
+}) {
+  const {
+    form,
+  } = useParams()
+
+  const navigate =
+    useNavigate()
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true)
+
+  const [
+    word,
+    setWord,
+  ] = useState(null)
+
+  const [
+    similar,
+    setSimilar,
+  ] = useState([])
+
+  const [
+    error,
+    setError,
+  ] = useState('')
+
+  const [
+    detailSearchInput,
+    setDetailSearchInput,
+  ] = useState(form || '')
+
+  const [
+    detailSuggestions,
+    setDetailSuggestions,
+  ] = useState([])
 
   useEffect(() => {
-    let cancelled = false;
+    setDetailSearchInput(
+      form || '',
+    )
+    setDetailSuggestions([])
+  }, [form])
 
-    async function load() {
-      setLoading(true);
-      setWord(null);
-      setSimilar([]);
+  useEffect(() => {
+    let cancelled = false
 
-      const main = await getWordByForm(form);
-      if (cancelled) return;
+    async function loadWord() {
+      setLoading(true)
+      setWord(null)
+      setSimilar([])
+      setError('')
 
-      if (main) {
-        setWord(main);
-        const sims = await getSimilarForms(main.lemma, main.form);
-        if (!cancelled) setSimilar(sims);
+      try {
+        const main =
+          await getWordByForm(
+            form || '',
+          )
+
+        if (cancelled) {
+          return
+        }
+
+        if (!main) {
+          setWord(null)
+          return
+        }
+
+        setWord(main)
+
+        if (main.lemma) {
+          const similarForms =
+            await getSimilarForms(
+              main.lemma,
+              main.form,
+            )
+
+          if (!cancelled) {
+            setSimilar(
+              similarForms,
+            )
+          }
+        }
+      } catch {
+        if (!cancelled) {
+          setError(
+            'Податоците за зборот не можеа да се вчитаат.',
+          )
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
-
-      if (!cancelled) setLoading(false);
     }
 
-    load();
-    return () => (cancelled = true);
-  }, [form]);
+    loadWord()
+
+    return () => {
+      cancelled = true
+    }
+  }, [form])
+
+  useEffect(() => {
+    const query =
+      detailSearchInput.trim()
+
+    if (!query) {
+      setDetailSuggestions([])
+      return undefined
+    }
+
+    if (query === form) {
+      setDetailSuggestions([])
+      return undefined
+    }
+
+    let cancelled = false
+
+    const timer =
+      setTimeout(
+        async () => {
+          try {
+            const suggestions =
+              await getSearchSuggestions(
+                query,
+              )
+
+            if (!cancelled) {
+              setDetailSuggestions(
+                suggestions,
+              )
+            }
+          } catch {
+            if (!cancelled) {
+              setDetailSuggestions([])
+            }
+          }
+        },
+        180,
+      )
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [
+    detailSearchInput,
+    form,
+  ])
+
+  const submitDetailSearch =
+    (value) => {
+      const query =
+        value.trim()
+
+      if (!query) {
+        return
+      }
+
+      onSearch(query)
+    }
+
+  const selectDetailSuggestion =
+    (value) => {
+      setDetailSearchInput(
+        value,
+      )
+
+      setDetailSuggestions([])
+
+      onSearch(value)
+    }
 
   if (loading) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        style={{ height: "150px" }}
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: 1,
+        }}
+        style={{
+          height: '150px',
+        }}
+        role="status"
+        aria-label="Вчитување на зборот"
       />
-    );
+    )
+  }
+
+  if (error) {
+    return (
+      <motion.section
+        className="details-page card not-found"
+        initial={{
+          opacity: 0,
+          y: 12,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        role="alert"
+      >
+        <h2>
+          Грешка при вчитување
+        </h2>
+
+        <p>
+          {error}
+        </p>
+      </motion.section>
+    )
   }
 
   if (!word) {
     return (
-      <motion.div
+      <motion.section
         className="details-page card not-found"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{
+          opacity: 0,
+          y: 12,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
       >
-        <p>Поимот „<strong>{form}</strong>“ не е пронајден.</p>
-      </motion.div>
-    );
+        <h2>
+          Поимот не е пронајден
+        </h2>
+
+        <p>
+          Поимот „
+          <strong>
+            {form}
+          </strong>
+          “ не е пронајден во речникот.
+        </p>
+      </motion.section>
+    )
   }
 
   return (
     <div className="details-layout">
       <motion.div
         className="details-search-wrapper"
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.28 }}
+        initial={{
+          opacity: 0,
+          y: -12,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 0.28,
+        }}
       >
         <SearchBar
-          term={form}
-          onTermChange={() => {}}
-          onSearch={(q) => q.trim() && navigate(`/details/${q.trim()}`)}
-          suggestions={[]}
+          term={
+            detailSearchInput
+          }
+          onTermChange={
+            setDetailSearchInput
+          }
+          onSearch={
+            submitDetailSearch
+          }
+          suggestions={
+            detailSuggestions
+          }
+          onSuggestionSelect={
+            selectDetailSuggestion
+          }
         />
       </motion.div>
 
-      <motion.div
+      <motion.article
         className="card word-details-card"
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
+        initial={{
+          opacity: 0,
+          y: 22,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 0.35,
+          ease: 'easeOut',
+        }}
       >
-        <WordDetails word={word} />
+        <WordDetails
+          word={word}
+        />
 
         {similar.length > 0 && (
           <section className="similar-words">
-            <h3>Слични форми</h3>
+            <h3>
+              Слични форми
+            </h3>
+
             <div className="similar-grid">
-              {similar.map((s, i) => (
-                <button
-                  key={i}
-                  className="similar-badge"
-                  onClick={() => navigate(`/details/${s}`)}
-                >
-                  {s}
-                </button>
-              ))}
+              {similar.map(
+                (similarForm) => (
+                  <button
+                    key={
+                      similarForm
+                    }
+                    type="button"
+                    className="similar-badge"
+                    onClick={() =>
+                      navigate(
+                        buildDetailsPath(
+                          similarForm,
+                        ),
+                      )
+                    }
+                  >
+                    {similarForm}
+                  </button>
+                ),
+              )}
             </div>
           </section>
         )}
-      </motion.div>
+      </motion.article>
     </div>
-  );
+  )
 }
 
+
 export default function App() {
-  const [totalWords, setTotalWords] = useState(0);
-  const [filteredWords, setFiltered] = useState([]);
+  const [
+    totalWords,
+    setTotalWords,
+  ] = useState(null)
 
-  const [selectedLetter, setLetter] = useState(null);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [
+    filteredWords,
+    setFilteredWords,
+  ] = useState([])
 
-  const [isDbBusy, setIsDbBusy] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
+  const [
+    selectedLetter,
+    setSelectedLetter,
+  ] = useState(null)
 
-  const navigate = useNavigate();
-  const location = useLocation();
-  const pathname = location.pathname;
+  const [
+    searchInput,
+    setSearchInput,
+  ] = useState('')
+
+  const [
+    searchTerm,
+    setSearchTerm,
+  ] = useState('')
+
+  const [
+    isDbBusy,
+    setIsDbBusy,
+  ] = useState(false)
+
+  const [
+    suggestions,
+    setSuggestions,
+  ] = useState([])
+
+  const [
+    dbError,
+    setDbError,
+  ] = useState('')
+
+  const navigate =
+    useNavigate()
+
+  const location =
+    useLocation()
+
+  const pathname =
+    location.pathname
+
 
   useEffect(() => {
-    let cancelled = false;
-    const q = searchInput.trim();
+    const query =
+      searchInput.trim()
 
-    if (!q) {
-      setSuggestions([]);
-      return;
+    if (!query) {
+      setSuggestions([])
+      return undefined
     }
 
-    const timer = setTimeout(async () => {
-      const arr = await getSearchSuggestions(q);
-      if (!cancelled) setSuggestions(arr);
-    }, 180);
+    let cancelled = false
+
+    const timer =
+      setTimeout(
+        async () => {
+          try {
+            const results =
+              await getSearchSuggestions(
+                query,
+              )
+
+            if (!cancelled) {
+              setSuggestions(
+                results,
+              )
+            }
+          } catch {
+            if (!cancelled) {
+              setSuggestions([])
+            }
+          }
+        },
+        180,
+      )
 
     return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [searchInput]);
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [searchInput])
+
 
   useEffect(() => {
-    const match = pathname.match(/^\/list\/(.+)$/);
-    setLetter(match ? decodeURIComponent(match[1]) : null);
-  }, [pathname]);
+    if (
+      !pathname.startsWith('/home')
+      || totalWords !== null
+    ) {
+      return undefined
+    }
 
-  useEffect(() => {
-    if (!pathname.startsWith("/home") || totalWords) return;
-
-    let cancelled = false;
+    let cancelled = false
 
     async function loadCount() {
-      setIsDbBusy(true);
-      const cnt = await getTotalForms();
-      if (!cancelled) setTotalWords(cnt);
-      setIsDbBusy(false);
+      setIsDbBusy(true)
+      setDbError('')
+
+      try {
+        const count =
+          await getTotalForms()
+
+        if (!cancelled) {
+          setTotalWords(
+            Number(count) || 0,
+          )
+        }
+      } catch {
+        if (!cancelled) {
+          setDbError(
+            'Речникот не може да се вчита. Освежете ја страницата и обидете се повторно.',
+          )
+        }
+      } finally {
+        if (!cancelled) {
+          setIsDbBusy(false)
+        }
+      }
     }
 
-    loadCount();
-    return () => (cancelled = true);
-  }, [pathname, totalWords]);
+    loadCount()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    pathname,
+    totalWords,
+  ])
+
 
   useEffect(() => {
-    let cancelled = false;
+    const match =
+      pathname.match(
+        /^\/list\/([^/]+)$/,
+      )
 
-    async function run() {
-      if (!selectedLetter && !searchTerm) {
-        setFiltered([]);
-        return;
-      }
-
-      setIsDbBusy(true);
-
-      if (selectedLetter && pathname.startsWith("/list")) {
-        const rows = await getWordsByLetter(selectedLetter);
-        if (!cancelled) setFiltered(rows);
-
-        navigate(`/list/${selectedLetter}`, { replace: true });
-        setIsDbBusy(false);
-        return;
-      }
-
-      if (searchTerm) {
-        const exact = await getWordByForm(searchTerm);
-
-        if (exact && !cancelled) {
-          navigate(`/details/${exact.form}`);
-          setIsDbBusy(false);
-          return;
-        }
-
-        const rows = await searchForms(searchTerm);
-        if (!cancelled) setFiltered(rows);
-
-        if (rows.length && !pathname.startsWith("/list")) {
-          navigate("/list", { replace: true });
-        } else if (!rows.length) {
-          navigate(`/not-found/${searchTerm}`, { replace: true });
-        }
-      }
-
-      setIsDbBusy(false);
+    if (!match) {
+      return undefined
     }
 
-    run();
-    return () => (cancelled = true);
-  }, [selectedLetter, searchTerm, pathname]);
+    let letter
 
-  const handleNavSelect = (key) => {
-    if (key === "home") {
-      setLetter(null);
-      setSearchInput("");
-      setSearchTerm("");
-      setSuggestions([]);
-      navigate("/home");
-    } else {
-      navigate(`/${key}`);
+    try {
+      letter =
+        decodeURIComponent(
+          match[1],
+        )
+    } catch {
+      navigate(
+        '/home',
+        {
+          replace: true,
+        },
+      )
+
+      return undefined
     }
-  };
 
-  const handleSearchInputChange = (v) => {
-    setSearchInput(v);
-    setLetter(null);
-  };
+    let cancelled = false
 
-  const handleSearchSubmit = (v) => {
-    const q = v.trim();
-    if (!q) return;
-    setSearchInput(q);
-    setSearchTerm(q);
-    setSuggestions([]);
-  };
+    async function loadLetter() {
+      setSelectedLetter(
+        letter,
+      )
 
-  const handleLetterClick = (ltr) => {
-    setLetter(ltr);
-    setSearchInput("");
-    setSearchTerm("");
-    setSuggestions([]);
-    navigate(`/list/${ltr}`);
-  };
+      setSearchInput('')
+      setSearchTerm('')
+      setSuggestions([])
+      setFilteredWords([])
+      setIsDbBusy(true)
+      setDbError('')
 
-  const handleRandom = async () => {
-    setIsDbBusy(true);
-    const f = await getRandomForm();
-    if (f) navigate(`/details/${f}`);
-    setIsDbBusy(false);
-  };
+      try {
+        const rows =
+          await getWordsByLetter(
+            letter,
+          )
 
-  const handleSuggestionSelect = (w) => {
-    setSearchInput(w);
-    setSearchTerm(w);
-    setSuggestions([]);
-  };
+        if (!cancelled) {
+          setFilteredWords(
+            rows,
+          )
+        }
+      } catch {
+        if (!cancelled) {
+          setDbError(
+            'Зборовите за избраната буква не можеа да се вчитаат.',
+          )
+        }
+      } finally {
+        if (!cancelled) {
+          setIsDbBusy(false)
+        }
+      }
+    }
+
+    loadLetter()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    pathname,
+    navigate,
+  ])
+
+
+  const performSearch =
+    useCallback(
+      async (value) => {
+        const query =
+          String(value).trim()
+
+        if (!query) {
+          return
+        }
+
+        setSearchInput(
+          query,
+        )
+
+        setSearchTerm(
+          query,
+        )
+
+        setSelectedLetter(
+          null,
+        )
+
+        setSuggestions([])
+        setFilteredWords([])
+        setIsDbBusy(true)
+        setDbError('')
+
+        try {
+          const exact =
+            await getWordByForm(
+              query,
+            )
+
+          if (exact) {
+            navigate(
+              buildDetailsPath(
+                exact.form,
+              ),
+            )
+
+            return
+          }
+
+          const rows =
+            await searchForms(
+              query,
+            )
+
+          setFilteredWords(
+            rows,
+          )
+
+          if (rows.length > 0) {
+            navigate(
+              '/list',
+            )
+          } else {
+            navigate(
+              buildNotFoundPath(
+                query,
+              ),
+            )
+          }
+        } catch {
+          setDbError(
+            'Пребарувањето не можеше да се изврши. Обидете се повторно.',
+          )
+        } finally {
+          setIsDbBusy(false)
+        }
+      },
+      [
+        navigate,
+      ],
+    )
+
+
+  const handleNavSelect =
+    (key) => {
+      if (key === 'home') {
+        setSelectedLetter(
+          null,
+        )
+
+        setSearchInput('')
+        setSearchTerm('')
+        setSuggestions([])
+        setFilteredWords([])
+        setDbError('')
+
+        navigate('/home')
+
+        return
+      }
+
+      setDbError('')
+
+      navigate(
+        `/${key}`,
+      )
+    }
+
+
+  const handleSearchInputChange =
+    (value) => {
+      setSearchInput(
+        value,
+      )
+
+      setSelectedLetter(
+        null,
+      )
+    }
+
+
+  const handleLetterClick =
+    (letter) => {
+      setSearchInput('')
+      setSearchTerm('')
+      setSuggestions([])
+      setFilteredWords([])
+      setDbError('')
+
+      navigate(
+        buildLetterPath(
+          letter,
+        ),
+      )
+    }
+
+
+  const handleRandom =
+    async () => {
+      setIsDbBusy(true)
+      setDbError('')
+
+      try {
+        const form =
+          await getRandomForm()
+
+        if (form) {
+          navigate(
+            buildDetailsPath(
+              form,
+            ),
+          )
+        }
+      } catch {
+        setDbError(
+          'Случаен збор не можеше да се избере. Обидете се повторно.',
+        )
+      } finally {
+        setIsDbBusy(false)
+      }
+    }
+
+
+  const handleSuggestionSelect =
+    (word) => {
+      setSearchInput(
+        word,
+      )
+
+      setSuggestions([])
+
+      performSearch(
+        word,
+      )
+    }
+
 
   const navKey =
-    pathname.startsWith("/home") ? "home" : pathname.split("/")[1] || "home";
+    pathname.startsWith('/home')
+      ? 'home'
+      : pathname.split('/')[1]
+        || 'home'
+
 
   return (
     <div className="app-shell">
-      <NavBar selected={navKey} onSelect={handleNavSelect} />
+      <NavBar
+        selected={navKey}
+        onSelect={
+          handleNavSelect
+        }
+      />
 
       <main className="app-main">
-        {isDbBusy && <LoadingOverlay />}
+        {isDbBusy && (
+          <LoadingOverlay />
+        )}
+
+        {dbError && (
+          <section
+            className="card"
+            role="alert"
+          >
+            <p>
+              {dbError}
+            </p>
+          </section>
+        )}
 
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-
-            <Route path="/" element={<Navigate to="/home" replace />} />
+          <Routes
+            location={location}
+            key={location.pathname}
+          >
+            <Route
+              path="/"
+              element={
+                <Navigate
+                  to="/home"
+                  replace
+                />
+              }
+            />
 
             <Route
               path="/home"
               element={
-                <motion.div {...pageTransition}>
+                <motion.div
+                  {...pageTransition}
+                >
                   <Home
-                    searchInput={searchInput}
-                    onSearchInputChange={handleSearchInputChange}
-                    onSearchSubmit={handleSearchSubmit}
-                    selectedLetter={selectedLetter}
-                    onLetterClick={handleLetterClick}
-                    onRandom={handleRandom}
-                    totalWords={totalWords}
-                    isDbBusy={isDbBusy}
-                    suggestions={suggestions}
-                    onSuggestionSelect={handleSuggestionSelect}
+                    searchInput={
+                      searchInput
+                    }
+                    onSearchInputChange={
+                      handleSearchInputChange
+                    }
+                    onSearchSubmit={
+                      performSearch
+                    }
+                    selectedLetter={
+                      selectedLetter
+                    }
+                    onLetterClick={
+                      handleLetterClick
+                    }
+                    onRandom={
+                      handleRandom
+                    }
+                    totalWords={
+                      totalWords
+                    }
+                    isDbBusy={
+                      isDbBusy
+                    }
+                    suggestions={
+                      suggestions
+                    }
+                    onSuggestionSelect={
+                      handleSuggestionSelect
+                    }
                   />
                 </motion.div>
               }
@@ -462,11 +1185,24 @@ export default function App() {
             <Route
               path="/list/:letter?"
               element={
-                <motion.div {...pageTransition}>
+                <motion.div
+                  {...pageTransition}
+                >
                   <ListPage
-                    words={filteredWords}
-                    searchTerm={searchTerm}
-                    onSelect={(w) => navigate(`/details/${w.form}`)}
+                    words={
+                      filteredWords
+                    }
+                    searchTerm={
+                      searchTerm
+                    }
+                    onSelect={
+                      (word) =>
+                        navigate(
+                          buildDetailsPath(
+                            word.form,
+                          ),
+                        )
+                    }
                   />
                 </motion.div>
               }
@@ -475,8 +1211,14 @@ export default function App() {
             <Route
               path="/details/:form"
               element={
-                <motion.div {...pageTransition}>
-                  <DetailsByParam />
+                <motion.div
+                  {...pageTransition}
+                >
+                  <DetailsByParam
+                    onSearch={
+                      performSearch
+                    }
+                  />
                 </motion.div>
               }
             />
@@ -484,7 +1226,9 @@ export default function App() {
             <Route
               path="/language"
               element={
-                <motion.div {...pageTransition}>
+                <motion.div
+                  {...pageTransition}
+                >
                   <LanguageInfo />
                 </motion.div>
               }
@@ -493,7 +1237,9 @@ export default function App() {
             <Route
               path="/abbr/:group?"
               element={
-                <motion.div {...pageTransition}>
+                <motion.div
+                  {...pageTransition}
+                >
                   <Abbreviations />
                 </motion.div>
               }
@@ -502,7 +1248,9 @@ export default function App() {
             <Route
               path="/not-found/:term"
               element={
-                <motion.div {...pageTransition}>
+                <motion.div
+                  {...pageTransition}
+                >
                   <NotFoundPage />
                 </motion.div>
               }
@@ -511,17 +1259,28 @@ export default function App() {
             <Route
               path="/favorites"
               element={
-                <motion.div {...pageTransition}>
+                <motion.div
+                  {...pageTransition}
+                >
                   <Favorites />
                 </motion.div>
               }
             />
 
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to="/home"
+                  replace
+                />
+              }
+            />
           </Routes>
         </AnimatePresence>
       </main>
 
       <Footer />
     </div>
-  );
+  )
 }

@@ -1,69 +1,145 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getFavorites } from "../utils/favoriteManager";
-import { getWordsByForms } from "../db/client";
+import {
+  useEffect,
+  useState,
+} from 'react'
+
+import {
+  Link,
+} from 'react-router-dom'
+
+import {
+  getWordsByForms,
+} from '../db/client'
+
+import {
+  getFavorites,
+} from '../utils/favoriteManager'
 
 export default function Favorites() {
-  const [words, setWords] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [
+    words,
+    setWords,
+  ] = useState([])
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true)
+
+  const [
+    error,
+    setError,
+  ] = useState('')
 
   useEffect(() => {
-    let cancelled = false;
+    let cancelled = false
 
     async function loadFavorites() {
-      const favForms = getFavorites();
+      setLoading(true)
+      setError('')
 
-      if (!favForms || favForms.length === 0) {
+      const favoriteForms =
+        getFavorites()
+
+      if (favoriteForms.length === 0) {
         if (!cancelled) {
-          setWords([]);
-          setLoading(false);
+          setWords([])
+          setLoading(false)
         }
-        return;
+
+        return
       }
 
       try {
-        const data = await getWordsByForms(favForms);
+        const data =
+          await getWordsByForms(
+            favoriteForms,
+          )
+
         if (!cancelled) {
-          setWords(data);
+          setWords(data)
+        }
+      } catch {
+        if (!cancelled) {
+          setWords([])
+          setError(
+            'Омилените зборови не можеа да се вчитаат. Обидете се повторно.',
+          )
         }
       } finally {
         if (!cancelled) {
-          setLoading(false);
+          setLoading(false)
         }
       }
     }
 
-    loadFavorites();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    loadFavorites()
 
-  if (loading) {
-    return (
-      <div className="favorites-page">
-        <p>Вчитување…</p>
-      </div>
-    );
-  }
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
-    <div className="favorites-page">
-      <h2>Омилени зборови</h2>
+    <section className="favorites-page">
+      <h1>
+        Омилени зборови
+      </h1>
 
-      {words.length === 0 ? (
-        <p className="empty-state">Немате додадено омилени зборови.</p>
-      ) : (
-        <ul className="favorite-list">
-          {words.map((w) => (
-            <li key={w.form} className="favorite-item">
-              <Link to={`/details/${w.form}`} className="favorite-link">
-                {w.form}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {loading && (
+        <p
+          className="favorites-loading"
+          role="status"
+          aria-live="polite"
+        >
+          Вчитување на омилените зборови…
+        </p>
       )}
-    </div>
-  );
+
+      {!loading && error && (
+        <p
+          className="empty-state"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
+
+      {!loading
+        && !error
+        && words.length === 0
+        && (
+          <p className="empty-state">
+            Немате додадено омилени зборови.
+          </p>
+        )}
+
+      {!loading
+        && !error
+        && words.length > 0
+        && (
+          <ul className="favorite-list">
+            {words.map(
+              (word) => (
+                <li
+                  key={word.form}
+                  className="favorite-item"
+                >
+                  <Link
+                    to={
+                      `/details/${encodeURIComponent(
+                        word.form,
+                      )}`
+                    }
+                    className="favorite-link"
+                  >
+                    {word.form}
+                  </Link>
+                </li>
+              ),
+            )}
+          </ul>
+        )}
+    </section>
+  )
 }

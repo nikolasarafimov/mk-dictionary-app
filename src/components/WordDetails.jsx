@@ -1,66 +1,183 @@
-import React, { useEffect, useState } from "react";
-import { decodeTag } from "../utils/tagDecoder";
-import { toggleFavorite, isFavorite } from "../utils/favoriteManager";
+import {
+  useEffect,
+  useState,
+} from 'react'
 
-export default function WordDetails({ word }) {
-  if (!word) return null;
+import {
+  isFavorite,
+  toggleFavorite,
+} from '../utils/favoriteManager'
 
-  const [fav, setFav] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [shared, setShared] = useState(false);
+import {
+  decodeTag,
+} from '../utils/tagDecoder'
+
+export default function WordDetails({
+  word,
+}) {
+  const [
+    favorite,
+    setFavorite,
+  ] = useState(false)
+
+  const [
+    copied,
+    setCopied,
+  ] = useState(false)
+
+  const [
+    shared,
+    setShared,
+  ] = useState(false)
 
   useEffect(() => {
-    setFav(isFavorite(word.form));
-  }, [word.form]);
+    if (!word?.form) {
+      setFavorite(false)
+      return
+    }
+
+    setFavorite(
+      isFavorite(word.form),
+    )
+  }, [word?.form])
+
+  useEffect(() => {
+    if (!copied) {
+      return undefined
+    }
+
+    const timer =
+      setTimeout(
+        () => {
+          setCopied(false)
+        },
+        1200,
+      )
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [copied])
+
+  useEffect(() => {
+    if (!shared) {
+      return undefined
+    }
+
+    const timer =
+      setTimeout(
+        () => {
+          setShared(false)
+        },
+        1200,
+      )
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [shared])
+
+  if (!word) {
+    return null
+  }
 
   const handleFavorite = () => {
-    const nowFav = toggleFavorite(word);
-    setFav(nowFav);
-  };
+    const isNowFavorite =
+      toggleFavorite(word)
+
+    setFavorite(
+      isNowFavorite,
+    )
+  }
 
   const handleCopyWord = async () => {
     try {
-      await navigator.clipboard.writeText(word.form);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1200);
+      if (!navigator.clipboard) {
+        throw new Error(
+          'Clipboard API is unavailable.',
+        )
+      }
+
+      await navigator.clipboard.writeText(
+        word.form,
+      )
+
+      setCopied(true)
     } catch {
-      console.warn("Failed to copy");
+      console.warn(
+        'Зборот не можеше да се копира.',
+      )
     }
-  };
+  }
 
   const handleShare = async () => {
-    const url = window.location.href;
+    const url =
+      window.location.href
 
     try {
       if (navigator.share) {
         await navigator.share({
           title: word.form,
-          text: `Погледни го поимот „${word.form}“ во македонскиот речник.`,
+          text:
+            `Погледни го поимот „${word.form}“ `
+            + 'во Македонскиот речник.',
           url,
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        setShared(true);
-        setTimeout(() => setShared(false), 1200);
+        })
+
+        return
       }
-    } catch {
-      console.warn("Share cancelled or failed");
+
+      if (!navigator.clipboard) {
+        throw new Error(
+          'Clipboard API is unavailable.',
+        )
+      }
+
+      await navigator.clipboard.writeText(
+        url,
+      )
+
+      setShared(true)
+    } catch (error) {
+      if (
+        error instanceof Error
+        && error.name === 'AbortError'
+      ) {
+        return
+      }
+
+      console.warn(
+        'Линкот не можеше да се сподели.',
+      )
     }
-  };
+  }
 
   return (
-    <div className="word-details">
-  
+    <article className="word-details">
       <div className="word-details-header">
-        <h2 className="word-title">{word.form}</h2>
+        <h2 className="word-title">
+          {word.form}
+        </h2>
 
-        <div className="word-actions">
+        <div
+          className="word-actions"
+          aria-label="Дејства за зборот"
+        >
           <button
             type="button"
-            className={`badge-button ${fav ? "badge-fav" : ""}`}
+            className={
+              `badge-button ${
+                favorite
+                  ? 'badge-fav'
+                  : ''
+              }`
+            }
+            aria-pressed={favorite}
             onClick={handleFavorite}
           >
-            {fav ? "★ Омилен" : "☆ Додај во омилени"}
+            {favorite
+              ? '★ Омилен'
+              : '☆ Додај во омилени'}
           </button>
 
           <button
@@ -68,7 +185,11 @@ export default function WordDetails({ word }) {
             className="badge-button"
             onClick={handleCopyWord}
           >
-            📋 Копирај збор
+            <span aria-hidden="true">
+              📋
+            </span>
+            {' '}
+            Копирај збор
           </button>
 
           <button
@@ -76,31 +197,60 @@ export default function WordDetails({ word }) {
             className="badge-button"
             onClick={handleShare}
           >
-            🔗 Сподели
+            <span aria-hidden="true">
+              🔗
+            </span>
+            {' '}
+            Сподели
           </button>
         </div>
 
-        {copied && <span className="copy-toast">✓ Копирано!</span>}
-        {shared && <span className="share-toast">✓ Линкот е копиран!</span>}
+        <div
+          className="word-action-status"
+          role="status"
+          aria-live="polite"
+        >
+          {copied && (
+            <span className="copy-toast">
+              ✓ Копирано!
+            </span>
+          )}
+
+          {shared && (
+            <span className="share-toast">
+              ✓ Линкот е копиран!
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="word-info">
         <p>
-          <strong>Потекло:</strong>{" "}
-          {word.lemma ? word.lemma : "—"}
+          <strong>
+            Лема:
+          </strong>
+          {' '}
+          {word.lemma || '—'}
         </p>
 
         <p>
-          <strong>Морфолошка ознака:</strong>{" "}
-          {word.tag ? word.tag : "—"}
+          <strong>
+            Морфолошка ознака:
+          </strong>
+          {' '}
+          {word.tag || '—'}
         </p>
 
         <p>
-          <strong>Опис:</strong>{" "}
-          {word.tag ? decodeTag(word.tag) : "—"}
+          <strong>
+            Морфолошки опис:
+          </strong>
+          {' '}
+          {word.tag
+            ? decodeTag(word.tag)
+            : '—'}
         </p>
       </div>
-
-    </div>
-  );
+    </article>
+  )
 }

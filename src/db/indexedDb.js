@@ -1,47 +1,164 @@
-const DB_NAME = 'mk-dictionary-cache';
-const STORE_NAME = 'files';
-const DB_VERSION = 2;
+const DB_NAME = 'mk-dictionary-cache'
+const STORE_NAME = 'files'
+const DB_VERSION = 3
+const CACHE_VERSION = '1'
 
-const DB_FILE_KEY = import.meta.env.PROD
+const DB_FILE_NAME = import.meta.env.PROD
   ? 'msd-mk-demo.sqlite'
-  : 'msd-mk.sqlite';
+  : 'msd-mk.sqlite'
+
+const DB_FILE_KEY =
+  `${DB_FILE_NAME}:v${CACHE_VERSION}`
 
 function openIDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
+  return new Promise(
+    (resolve, reject) => {
+      const request =
+        indexedDB.open(
+          DB_NAME,
+          DB_VERSION,
+        )
 
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
+      request.onupgradeneeded = () => {
+        const db = request.result
+
+        if (
+          db.objectStoreNames.contains(
+            STORE_NAME,
+          )
+        ) {
+          db.deleteObjectStore(
+            STORE_NAME,
+          )
+        }
+
+        db.createObjectStore(
+          STORE_NAME,
+        )
       }
-    };
 
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
+      request.onsuccess = () => {
+        resolve(
+          request.result,
+        )
+      }
+
+      request.onerror = () => {
+        reject(
+          request.error
+          || new Error(
+            'Could not open the dictionary cache.',
+          ),
+        )
+      }
+    },
+  )
 }
 
 export async function loadCachedDbFile() {
-  const db = await openIDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readonly');
-    const store = tx.objectStore(STORE_NAME);
-    const getReq = store.get(DB_FILE_KEY);
+  const db = await openIDB()
 
-    getReq.onsuccess = () => resolve(getReq.result || null);
-    getReq.onerror = () => reject(getReq.error);
-  });
+  try {
+    return await new Promise(
+      (resolve, reject) => {
+        const transaction =
+          db.transaction(
+            STORE_NAME,
+            'readonly',
+          )
+
+        const store =
+          transaction.objectStore(
+            STORE_NAME,
+          )
+
+        const request =
+          store.get(
+            DB_FILE_KEY,
+          )
+
+        request.onsuccess = () => {
+          resolve(
+            request.result || null,
+          )
+        }
+
+        request.onerror = () => {
+          reject(
+            request.error
+            || new Error(
+              'Could not read the cached dictionary database.',
+            ),
+          )
+        }
+
+        transaction.onabort = () => {
+          reject(
+            transaction.error
+            || new Error(
+              'Dictionary cache read transaction was aborted.',
+            ),
+          )
+        }
+      },
+    )
+  } finally {
+    db.close()
+  }
 }
 
 export async function saveDbFile(buffer) {
-  const db = await openIDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const putReq = store.put(buffer, DB_FILE_KEY);
+  if (!(buffer instanceof ArrayBuffer)) {
+    throw new TypeError(
+      'Dictionary database cache requires an ArrayBuffer.',
+    )
+  }
 
-    putReq.onsuccess = () => resolve();
-    putReq.onerror = () => reject(putReq.error);
-  });
+  const db = await openIDB()
+
+  try {
+    await new Promise(
+      (resolve, reject) => {
+        const transaction =
+          db.transaction(
+            STORE_NAME,
+            'readwrite',
+          )
+
+        const store =
+          transaction.objectStore(
+            STORE_NAME,
+          )
+
+        store.put(
+          buffer,
+          DB_FILE_KEY,
+        )
+
+        transaction.oncomplete = () => {
+          resolve()
+        }
+
+        transaction.onerror = () => {
+          reject(
+            transaction.error
+            || new Error(
+              'Could not cache the dictionary database.',
+            ),
+          )
+        }
+
+        transaction.onabort = () => {
+          reject(
+            transaction.error
+            || new Error(
+              'Dictionary cache write transaction was aborted.',
+            ),
+          )
+        }
+      },
+    )
+  } finally {
+    db.close()
+  }
 }
