@@ -1,42 +1,37 @@
-import {
-  rmSync,
-} from 'node:fs'
 
-import {
-  resolve,
-} from 'node:path'
+import { rmSync } from 'node:fs'
+import { resolve } from 'node:path'
 
-import {
-  defineConfig,
-} from 'vite'
-
-import react
-  from '@vitejs/plugin-react'
-
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 function excludeFullDatabaseFromBuild() {
+  let outputDirectory = null
+
   return {
     name: 'exclude-full-dictionary-database',
 
     apply: 'build',
 
+    configResolved(config) {
+      outputDirectory = resolve(
+        config.root,
+        config.build.outDir,
+      )
+    },
+
     closeBundle() {
-      const fullDatabasePath =
-        resolve(
-          'dist',
-          'msd-mk.sqlite',
-        )
+      if (!outputDirectory) {
+        return
+      }
 
       rmSync(
-        fullDatabasePath,
-        {
-          force: true,
-        },
+        resolve(outputDirectory, 'msd-mk.sqlite'),
+        { force: true },
       )
     },
   }
 }
-
 
 export default defineConfig({
   base: '/',

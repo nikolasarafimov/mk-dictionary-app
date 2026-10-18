@@ -4,6 +4,15 @@ import {
 } from 'react'
 
 import {
+  FiClipboard,
+  FiHeart,
+  FiShare2,
+} from 'react-icons/fi'
+
+import useToast
+  from '../hooks/useToast'
+
+import {
   isFavorite,
   toggleFavorite,
 } from '../utils/favoriteManager'
@@ -12,155 +21,288 @@ import {
   decodeTag,
 } from '../utils/tagDecoder'
 
+
+function getTitleSizeClass(
+  value,
+) {
+  const length =
+    Array.from(
+      String(
+        value || '',
+      ),
+    ).length
+
+
+  if (length >= 28) {
+    return 'word-title-xxl'
+  }
+
+
+  if (length >= 20) {
+    return 'word-title-xl'
+  }
+
+
+  if (length >= 14) {
+    return 'word-title-lg'
+  }
+
+
+  return ''
+}
+
+
+function getMorphology(
+  tag,
+) {
+  if (!tag) {
+    return '—'
+  }
+
+
+  try {
+    const decoded =
+      decodeTag(
+        tag,
+      )
+
+
+    if (
+      typeof decoded !== 'string'
+      || !decoded.trim()
+    ) {
+      return '—'
+    }
+
+
+    return decoded.trim()
+  } catch {
+    return '—'
+  }
+}
+
+
 export default function WordDetails({
   word,
 }) {
+  const toast =
+    useToast()
+
+
   const [
     favorite,
     setFavorite,
   ] = useState(false)
 
-  const [
-    copied,
-    setCopied,
-  ] = useState(false)
-
-  const [
-    shared,
-    setShared,
-  ] = useState(false)
 
   useEffect(() => {
     if (!word?.form) {
       setFavorite(false)
+
       return
     }
 
-    setFavorite(
-      isFavorite(word.form),
-    )
-  }, [word?.form])
 
-  useEffect(() => {
-    if (!copied) {
-      return undefined
-    }
-
-    const timer =
-      setTimeout(
-        () => {
-          setCopied(false)
-        },
-        1200,
+    try {
+      setFavorite(
+        Boolean(
+          isFavorite(
+            word.form,
+          ),
+        ),
       )
-
-    return () => {
-      clearTimeout(timer)
+    } catch {
+      setFavorite(false)
     }
-  }, [copied])
+  }, [
+    word?.form,
+  ])
 
-  useEffect(() => {
-    if (!shared) {
-      return undefined
-    }
 
-    const timer =
-      setTimeout(
-        () => {
-          setShared(false)
-        },
-        1200,
-      )
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [shared])
-
-  if (!word) {
+  if (!word?.form) {
     return null
   }
 
-  const handleFavorite = () => {
-    const isNowFavorite =
-      toggleFavorite(word)
 
-    setFavorite(
-      isNowFavorite,
+  const titleSizeClass =
+    getTitleSizeClass(
+      word.form,
     )
-  }
 
-  const handleCopyWord = async () => {
-    try {
-      if (!navigator.clipboard) {
-        throw new Error(
-          'Clipboard API is unavailable.',
+
+  const morphology =
+    getMorphology(
+      word.tag,
+    )
+
+
+  const handleFavorite =
+    () => {
+      try {
+        const isNowFavorite =
+          Boolean(
+            toggleFavorite(
+              word,
+            ),
+          )
+
+
+        setFavorite(
+          isNowFavorite,
+        )
+
+
+        if (isNowFavorite) {
+          toast.success(
+            `„${word.form}“ е додаден во омилени.`,
+          )
+
+          return
+        }
+
+
+        toast.info(
+          `„${word.form}“ е отстранет од омилени.`,
+        )
+      } catch {
+        toast.error(
+          'Омилените не можеа да се ажурираат.',
         )
       }
-
-      await navigator.clipboard.writeText(
-        word.form,
-      )
-
-      setCopied(true)
-    } catch {
-      console.warn(
-        'Зборот не можеше да се копира.',
-      )
     }
-  }
 
-  const handleShare = async () => {
-    const url =
-      window.location.href
 
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: word.form,
-          text:
-            `Погледни го поимот „${word.form}“ `
-            + 'во Македонскиот речник.',
-          url,
-        })
+  const handleCopyWord =
+    async () => {
+      try {
+        if (
+          typeof navigator
+            === 'undefined'
+          || !navigator.clipboard
+            ?.writeText
+        ) {
+          throw new Error(
+            'Clipboard unavailable',
+          )
+        }
 
-        return
-      }
 
-      if (!navigator.clipboard) {
-        throw new Error(
-          'Clipboard API is unavailable.',
+        await navigator.clipboard
+          .writeText(
+            word.form,
+          )
+
+
+        toast.success(
+          `Зборот „${word.form}“ е копиран.`,
+        )
+      } catch {
+        toast.error(
+          'Зборот не можеше да се копира.',
         )
       }
+    }
 
-      await navigator.clipboard.writeText(
-        url,
-      )
 
-      setShared(true)
-    } catch (error) {
+  const handleShare =
+    async () => {
       if (
-        error instanceof Error
-        && error.name === 'AbortError'
+        typeof window
+          === 'undefined'
+        || typeof navigator
+          === 'undefined'
       ) {
         return
       }
 
-      console.warn(
-        'Линкот не можеше да се сподели.',
-      )
+
+      const url =
+        window.location.href
+
+
+      try {
+        if (
+          typeof navigator.share
+            === 'function'
+        ) {
+          await navigator.share({
+            title:
+              `${word.form} — Македонски речник`,
+
+            text:
+              `Погледни го зборот „${word.form}“ во Македонскиот речник.`,
+
+            url,
+          })
+
+
+          toast.success(
+            'Зборот е успешно споделен.',
+          )
+
+          return
+        }
+
+
+        if (
+          !navigator.clipboard
+            ?.writeText
+        ) {
+          throw new Error(
+            'Clipboard unavailable',
+          )
+        }
+
+
+        await navigator.clipboard
+          .writeText(
+            url,
+          )
+
+
+        toast.success(
+          'Линкот до зборот е копиран.',
+        )
+      } catch (error) {
+        if (
+          error instanceof Error
+          && error.name
+            === 'AbortError'
+        ) {
+          return
+        }
+
+
+        toast.error(
+          'Линкот не можеше да се сподели.',
+        )
+      }
     }
-  }
+
 
   return (
     <article className="word-details">
-      <div className="word-details-header">
-        <h2 className="word-title">
-          {word.form}
-        </h2>
+      <header className="word-details-header">
+        <div className="word-details-heading">
+          <span className="ui-eyebrow">
+            Речничка единица
+          </span>
+
+
+          <h1
+            className={
+              `word-title ${titleSizeClass}`
+                .trim()
+            }
+          >
+            {word.form}
+          </h1>
+        </div>
+
 
         <div
           className="word-actions"
+          role="group"
           aria-label="Дејства за зборот"
         >
           <button
@@ -172,85 +314,97 @@ export default function WordDetails({
                   : ''
               }`
             }
-            aria-pressed={favorite}
-            onClick={handleFavorite}
+            aria-pressed={
+              favorite
+            }
+            onClick={
+              handleFavorite
+            }
           >
-            {favorite
-              ? '★ Омилен'
-              : '☆ Додај во омилени'}
+            <FiHeart
+              aria-hidden="true"
+            />
+
+            <span>
+              {favorite
+                ? 'Омилен'
+                : 'Додај во омилени'}
+            </span>
           </button>
+
 
           <button
             type="button"
             className="badge-button"
-            onClick={handleCopyWord}
+            onClick={
+              handleCopyWord
+            }
           >
-            <span aria-hidden="true">
-              📋
+            <FiClipboard
+              aria-hidden="true"
+            />
+
+            <span>
+              Копирај збор
             </span>
-            {' '}
-            Копирај збор
           </button>
+
 
           <button
             type="button"
             className="badge-button"
-            onClick={handleShare}
+            onClick={
+              handleShare
+            }
           >
-            <span aria-hidden="true">
-              🔗
+            <FiShare2
+              aria-hidden="true"
+            />
+
+            <span>
+              Сподели
             </span>
-            {' '}
-            Сподели
           </button>
         </div>
+      </header>
 
-        <div
-          className="word-action-status"
-          role="status"
-          aria-live="polite"
-        >
-          {copied && (
-            <span className="copy-toast">
-              ✓ Копирано!
-            </span>
-          )}
 
-          {shared && (
-            <span className="share-toast">
-              ✓ Линкот е копиран!
-            </span>
-          )}
+      <section
+        className="word-info"
+        aria-label="Лингвистички податоци"
+      >
+        <div className="word-info-row">
+          <span>
+            Лема
+          </span>
+
+          <strong>
+            {word.lemma || '—'}
+          </strong>
         </div>
-      </div>
 
-      <div className="word-info">
-        <p>
-          <strong>
-            Лема:
-          </strong>
-          {' '}
-          {word.lemma || '—'}
-        </p>
 
-        <p>
-          <strong>
-            Морфолошка ознака:
-          </strong>
-          {' '}
-          {word.tag || '—'}
-        </p>
+        <div className="word-info-row">
+          <span>
+            Морфолошка ознака
+          </span>
 
-        <p>
-          <strong>
-            Морфолошки опис:
+          <strong className="word-raw-tag">
+            {word.tag || '—'}
           </strong>
-          {' '}
-          {word.tag
-            ? decodeTag(word.tag)
-            : '—'}
-        </p>
-      </div>
+        </div>
+
+
+        <div className="word-info-row">
+          <span>
+            Морфолошки опис
+          </span>
+
+          <strong>
+            {morphology}
+          </strong>
+        </div>
+      </section>
     </article>
   )
 }

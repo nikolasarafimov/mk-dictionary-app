@@ -14,10 +14,12 @@ export const posMap = {
   Z: 'интерпункција',
 }
 
+
 export const nounTypeMap = {
   c: 'општа',
   p: 'сопствена',
 }
+
 
 export const genderMap = {
   m: 'машки род',
@@ -25,10 +27,12 @@ export const genderMap = {
   n: 'среден род',
 }
 
+
 export const numberMap = {
   s: 'еднина',
   p: 'множина',
 }
+
 
 export const verbTypeMap = {
   m: 'главен',
@@ -36,10 +40,12 @@ export const verbTypeMap = {
   o: 'модален',
 }
 
+
 export const aspectMap = {
   p: 'несвршен',
   e: 'свршен',
 }
+
 
 export const tenseMap = {
   p: 'сегашно време',
@@ -48,22 +54,26 @@ export const tenseMap = {
   c: 'сложено време',
 }
 
+
 export const personMap = {
   1: 'прво лице',
   2: 'второ лице',
   3: 'трето лице',
 }
 
+
 export const adjectiveTypeMap = {
   g: 'општа',
   s: 'сопствена',
 }
+
 
 export const adjectiveDegreeMap = {
   p: 'позитивна форма',
   c: 'компаратна (споредбена)',
   s: 'суперлативна',
 }
+
 
 export const pronounTypeMap = {
   p: 'личен',
@@ -76,6 +86,7 @@ export const pronounTypeMap = {
   g: 'општ',
 }
 
+
 export const adverbTypeMap = {
   g: 'општ прилог',
   a: 'прилог-придавка',
@@ -83,30 +94,36 @@ export const adverbTypeMap = {
   d: 'модален прилог',
 }
 
+
 export const adverbDegreeMap = {
   p: 'позитивна форма',
   c: 'компаратна (споредбена)',
   s: 'суперлативна',
 }
 
+
 export const adpositionTypeMap = {
   p: 'прост предлог',
 }
+
 
 export const adpositionFormMap = {
   s: 'прост',
   c: 'сложен',
 }
 
+
 export const conjunctionTypeMap = {
   c: 'координативен',
   s: 'субординативен',
 }
 
+
 export const conjunctionFormMap = {
   s: 'прост',
   c: 'сложен',
 }
+
 
 export const numeralFormMap = {
   d: 'арапска цифра',
@@ -114,10 +131,12 @@ export const numeralFormMap = {
   l: 'со букви',
 }
 
+
 export const particleFormMap = {
   s: 'проста честичка',
   c: 'сложена честичка',
 }
+
 
 export const residualTypeMap = {
   f: 'странски збор',
@@ -129,25 +148,66 @@ export const residualTypeMap = {
   p: 'име на програма',
 }
 
-function addMappedValue(parts, map, key) {
-  const value = map[key]
+
+function addMappedValue(
+  parts,
+  map,
+  key,
+) {
+  if (
+    key === undefined
+    || key === null
+  ) {
+    return
+  }
+
+
+  const value =
+    map[key]
+
 
   if (value) {
-    parts.push(value)
+    parts.push(
+      value,
+    )
   }
 }
 
-export function decodeTag(tag) {
+
+export function decodeTag(
+  tag,
+) {
   if (
     typeof tag !== 'string'
-    || !tag.trim()
   ) {
     return 'Нема морфолошка ознака.'
   }
 
-  const letters = tag.trim().split('')
-  const pos = letters[0]
+
+  const normalizedTag =
+    tag.trim()
+
+
+  if (!normalizedTag) {
+    return 'Нема морфолошка ознака.'
+  }
+
+
+  const letters =
+    normalizedTag.split('')
+
+  const pos =
+    String(
+      letters[0] ?? '',
+    ).toUpperCase()
+
   const parts = []
+
+
+  if (!posMap[pos]) {
+    return 'Непозната морфолошка ознака.'
+  }
+
 
   addMappedValue(
     parts,
@@ -155,10 +215,16 @@ export function decodeTag(tag) {
     pos,
   )
 
+
   switch (pos) {
     case 'N': {
-      const [, type, gender, number] =
-        letters
+      const [
+        ,
+        type,
+        gender,
+        number,
+      ] = letters
+
 
       addMappedValue(
         parts,
@@ -181,6 +247,7 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'V': {
       const [
         ,
@@ -192,6 +259,7 @@ export function decodeTag(tag) {
         number,
         gender,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -232,6 +300,7 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'A': {
       const [
         ,
@@ -240,6 +309,7 @@ export function decodeTag(tag) {
         gender,
         number,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -268,6 +338,7 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'P': {
       const [
         ,
@@ -276,6 +347,7 @@ export function decodeTag(tag) {
         gender,
         number,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -304,12 +376,14 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'R': {
       const [
         ,
         type,
         degree,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -326,12 +400,14 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'S': {
       const [
         ,
         type,
         form,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -348,12 +424,14 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'C': {
       const [
         ,
         type,
         form,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -370,6 +448,7 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'M': {
       const [
         ,
@@ -377,6 +456,7 @@ export function decodeTag(tag) {
         ,
         gender,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -393,11 +473,13 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'Q': {
       const [
         ,
         form,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -408,11 +490,13 @@ export function decodeTag(tag) {
       break
     }
 
+
     case 'X': {
       const [
         ,
         type,
       ] = letters
+
 
       addMappedValue(
         parts,
@@ -423,13 +507,11 @@ export function decodeTag(tag) {
       break
     }
 
+
     default:
       break
   }
 
-  if (parts.length === 0) {
-    return 'Непозната морфолошка ознака.'
-  }
 
   return parts.join(', ')
 }

@@ -1,215 +1,138 @@
-# Дигитален Македонски Речник
-## Digital Macedonian Dictionary
+# Дигитален македонски речник
 
-A modern client-side web application for searching and exploring Macedonian word forms, lemmas, and morphological information directly in the browser.
+### Digital Macedonian Dictionary
 
-The project contains a full SQLite dictionary database with more than **1.3 million Macedonian word forms**, while the deployed version uses a smaller representative database optimized for fast browser loading.
+A client-side web application for searching and exploring Macedonian word forms, lemmas, and morphological information. Built with React, SQLite, WebAssembly, and a dedicated Web Worker, the dictionary runs directly in the browser without a separate database server.
+
+**[Live Demo](https://mkd-dictionary-app.vercel.app/home)** · **[Source Code](https://github.com/nikolasarafimov/mk-dictionary-app)**
 
 **Author:** Nikola Sarafimov  
-**Degree Programme:** PIT, FINKI, III year
-
-### Live Demo
-
-[Open the Digital Macedonian Dictionary](https://mkd-dictionary-app.vercel.app/home)
-
----
+**Academic programme:** PIT, Faculty of Computer Science and Engineering (FINKI), third year  
+**Project version:** `1.0.0`
 
 ## Overview
 
-Digital Macedonian Dictionary is a browser-based dictionary application built with React and SQLite.
+The application provides a searchable interface to Macedonian dictionary data, including word forms, their lemmas, and morphological tags. SQLite queries run inside a Web Worker through `sql.js` and WebAssembly, keeping database processing away from the main UI thread.
 
-Unlike a traditional web application with a separate backend database server, the dictionary database is loaded directly in the browser using `sql.js`.
-
-SQL operations are executed inside a Web Worker, keeping database processing away from the main UI thread and allowing the interface to remain responsive.
-
----
+The repository includes a full development database containing more than **1.3 million word forms** and a smaller demonstration database intended for production deployment. The application can cache the downloaded database in IndexedDB for subsequent visits.
 
 ## Features
 
-### Dictionary Search
+- **Dictionary search:** Exact and partial word-form lookup with autocomplete suggestions and keyboard navigation.
+- **Alphabetical browsing:** Navigate word forms by the 31 letters of the Macedonian alphabet.
+- **Word details:** View the selected form, lemma, morphological tag, and decoded morphological information.
+- **Related word forms:** Explore other forms associated with the same lemma.
+- **Random word:** Open a randomly selected dictionary entry.
+- **Favorites:** Save and remove favorite words locally in the browser.
+- **Search history and recent words:** Quickly revisit previous searches and recently opened entries.
+- **Command palette:** Access search and navigation actions through a keyboard-friendly interface.
+- **Language reference:** Read about Macedonian language classification, dialects, alphabet, linguistic characteristics, and development.
+- **Abbreviations:** Browse and search abbreviations organized into seven groups.
+- **Responsive experience:** Desktop, tablet, and mobile layouts, with accessible focus states and reduced-motion support.
 
-Users can search for Macedonian word forms or partial words.
-
-The search interface includes:
-
-- live search suggestions;
-- keyboard navigation;
-- exact word lookup;
-- partial word matching.
-
-### Alphabetical Browsing
-
-The application includes all **31 letters of the Macedonian alphabet**.
-
-Selecting a letter displays dictionary forms beginning with that letter.
-
-### Word Details
-
-Dictionary entries can display:
-
-- word form;
-- lemma;
-- morphological tag;
-- decoded morphological description.
-
-Users can also:
-
-- add or remove words from favorites;
-- copy a word;
-- share the current dictionary entry;
-- explore related forms with the same lemma.
-
-### Random Word
-
-A random dictionary form can be selected directly from the SQLite database.
-
-### Favorites
-
-Favorite words are stored locally using `localStorage`.
-
-No user account or backend service is required.
-
-### Macedonian Language Information
-
-The application contains an educational section covering:
-
-- language classification;
-- official use;
-- dialectal organization;
-- the Macedonian alphabet;
-- linguistic characteristics;
-- historical development and codification.
-
-### Abbreviations
-
-A separate reference section presents Macedonian abbreviations organized into seven groups.
-
-### Responsive Interface
-
-The interface is designed for:
-
-- desktop computers;
-- laptops;
-- tablets;
-- mobile phones.
-
-The UI includes responsive layouts, animated page transitions, interactive cards, autocomplete suggestions, keyboard-accessible controls, focus states, and reduced-motion support.
-
----
+No account or authentication is required.
 
 ## Technology Stack
 
-### Frontend
-
-- React
-- Vite
-- React Router
-- Framer Motion
-- React Icons
-- React Window
-
-### Database
-
-- SQLite
-- sql.js
-- WebAssembly
-
-### Browser Storage
-
-- IndexedDB for SQLite database caching
-- localStorage for favorite words
-
-### Development Tools
-
-- ESLint
-- Python
-- Git LFS
-- Vercel
-
----
+| Area | Technologies |
+| --- | --- |
+| Frontend | React 19, Vite 6, React Router 7 |
+| UI | CSS, Framer Motion, React Icons, React Window |
+| Database | SQLite, sql.js, WebAssembly, Web Worker |
+| Browser storage | IndexedDB, localStorage |
+| Development | ESLint, Python 3, Git LFS |
+| Deployment | Vercel |
 
 ## Architecture
 
-The application is fully client-side.
-
 ```text
 React UI
-   │
-   ▼
-Database Client
-   │
-   ▼
-Web Worker
-   │
-   ▼
-sql.js / WebAssembly
-   │
-   ▼
-SQLite Database
+   |
+   v
+Database client (src/db/client.js)
+   |
+   v
+Web Worker (src/db/sqlWorker.js)
+   |
+   v
+sql.js + WebAssembly
+   |
+   v
+SQLite database
 ```
 
-Database queries are executed through a Web Worker so that SQL processing does not block the main browser thread.
+The database client selects the appropriate database file for the build environment, loads a cached copy from IndexedDB when available, and communicates with the Web Worker for SQL execution. If a cached database cannot be opened, the client attempts to download a fresh copy.
 
-After loading, the SQLite database can be cached locally using IndexedDB.
-
----
+The application is fully client-side; it does not require a separate API or database server for dictionary queries.
 
 ## Database Versions
 
-The project contains two SQLite database variants.
+| Environment | Database file | Purpose |
+| --- | --- | --- |
+| Development | `public/msd-mk.sqlite` | Full dictionary, tracked with Git LFS |
+| Production | `public/msd-mk-demo.sqlite` | Smaller representative dictionary sample |
 
-### Full Development Database
+The full database contains **more than 1.3 million Macedonian word forms**. The documented demo snapshot contains **28,580 word forms** with **31/31 Macedonian letters represented**. These snapshot figures can change when the demo database is regenerated.
 
-```text
-public/msd-mk.sqlite
+The generation script targets up to **30,000 rows**, sampling across the alphabet. The final number depends on how many matching rows are available for each letter.
+
+The production build removes `msd-mk.sqlite` from the generated `dist/` folder. The demo database and `sql-wasm.wasm` remain available to the deployed application.
+
+## Getting Started
+
+### Requirements
+
+- Node.js 20 or later (recommended) and npm
+- Git
+- Git LFS to download the full development database
+- Python 3 only if you want to regenerate the demo database
+
+### Installation
+
+```bash
+git clone https://github.com/nikolasarafimov/mk-dictionary-app.git
+cd mk-dictionary-app
+
+git lfs install
+git lfs pull
+
+npm ci
+npm run dev
 ```
 
-This is the complete dictionary database containing more than **1.3 million Macedonian word forms**.
+The development server uses port **8080**, as configured in `vite.config.js`. Open the local URL displayed by Vite.
 
-It is tracked using **Git LFS** because of its size.
+The development environment expects `public/msd-mk.sqlite` to contain the actual SQLite data, not only its Git LFS pointer.
 
-The development environment uses this database.
+## Available Scripts
 
-### Production Demo Database
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run lint` | Run ESLint |
+| `npm run build` | Create a production build in `dist/` |
+| `npm run preview` | Preview the production build locally |
+| `npm run check` | Run lint followed by the production build |
 
-```text
-public/msd-mk-demo.sqlite
+### Verify the project
+
+```bash
+npm run check
 ```
 
-The deployed production version uses a reduced representative database for significantly faster browser loading.
-
-The current generated demo database contains:
-
-```text
-28,580 word forms
-31/31 Macedonian alphabet letters represented
-```
-
-The production build automatically excludes the full database from `dist/`, preventing the 100+ MB development database from being deployed unnecessarily.
-
----
+This command is available after updating `package.json` to the revised version. Passing it requires the lint and build steps to complete successfully in your local environment.
 
 ## Demo Database Generation
 
-The production database can be regenerated from the full database using:
+To regenerate the representative production database from the full development database:
 
 ```bash
 python tools/create_demo_db.py
 ```
 
-The script:
+The script reads the full SQLite database, selects word forms across the 31 Macedonian letters, preserves the `words` table structure, copies its SQL-defined indexes, and validates the number of rows copied. It prints the alphabet coverage and replaces the previous demo database only after successful generation.
 
-- reads the full SQLite database;
-- creates a representative sample across all Macedonian letters;
-- preserves the required `words` table structure;
-- recreates the relevant database indexes;
-- validates the generated row count;
-- verifies Macedonian alphabet coverage;
-- safely replaces the existing demo database only after successful generation.
-
-The full database remains unchanged.
-
----
+The script does not modify the source database. Its current validation prints alphabet coverage; it does **not** enforce complete 31/31 coverage as a failing condition.
 
 ## Project Structure
 
@@ -218,253 +141,132 @@ mk-dictionary-app/
 ├── docs/
 │   ├── project_report.pdf
 │   └── project_reportMK.pdf
-│
 ├── public/
 │   ├── logo.png
 │   ├── msd-mk-demo.sqlite
 │   ├── msd-mk.sqlite
 │   ├── recnikLogo.png
 │   └── sql-wasm.wasm
-│
 ├── src/
 │   ├── components/
-│   │   ├── Abbreviations.jsx
+│   │   ├── AppErrorBoundary.jsx
+│   │   ├── CommandPalette.jsx
 │   │   ├── Footer.jsx
-│   │   ├── LanguageInfo.jsx
 │   │   ├── LetterNav.jsx
 │   │   ├── LoadingOverlay.jsx
 │   │   ├── NavBar.jsx
-│   │   ├── NotFoundPage.jsx
 │   │   ├── RandomWordButton.jsx
+│   │   ├── ScrollManager.jsx
 │   │   ├── SearchBar.jsx
+│   │   ├── Toast.jsx
+│   │   ├── ToastProvider.jsx
 │   │   ├── WordDetails.jsx
 │   │   └── WordList.jsx
-│   │
+│   ├── context/
+│   │   └── ToastContext.js
+│   ├── data/
+│   │   └── abbreviations.js
 │   ├── db/
 │   │   ├── client.js
 │   │   ├── indexedDb.js
 │   │   └── sqlWorker.js
-│   │
+│   ├── hooks/
+│   │   ├── useSearchSuggestions.js
+│   │   └── useToast.js
 │   ├── pages/
-│   │   └── Favorites.jsx
-│   │
+│   │   ├── Abbreviations.jsx
+│   │   ├── Favorites.jsx
+│   │   ├── Home.jsx
+│   │   ├── LanguageInfo.jsx
+│   │   ├── ListPage.jsx
+│   │   ├── NotFoundPage.jsx
+│   │   ├── SearchResults.jsx
+│   │   └── WordPage.jsx
+│   ├── styles/
+│   │   ├── command-palette.css
+│   │   ├── components.css
+│   │   ├── design-system.css
+│   │   ├── details.css
+│   │   ├── home.css
+│   │   ├── information.css
+│   │   ├── loading.css
+│   │   ├── navigation.css
+│   │   ├── results.css
+│   │   ├── secondary-pages.css
+│   │   ├── shell.css
+│   │   └── toast.css
 │   ├── utils/
 │   │   ├── favoriteManager.js
+│   │   ├── recentManager.js
+│   │   ├── routes.js
+│   │   ├── searchHistoryManager.js
 │   │   └── tagDecoder.js
-│   │
-│   ├── App.css
 │   ├── App.jsx
 │   └── main.jsx
-│
 ├── tools/
 │   └── create_demo_db.py
-│
 ├── .gitattributes
 ├── .gitignore
 ├── eslint.config.js
 ├── index.html
-├── package.json
 ├── package-lock.json
+├── package.json
 ├── README.md
 ├── vercel.json
 └── vite.config.js
 ```
 
----
+This tree describes the revised project structure after applying the changes from the code review. The published GitHub repository may still contain older files until the changes are committed and pushed.
 
-## Requirements
+## Production Build and Deployment
 
-To run the complete project locally, install:
-
-- Node.js
-- npm
-- Git
-- Git LFS
-
-Python 3 is required only when regenerating the production demo database.
-
----
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/nikolasarafimov/mk-dictionary-app.git
-cd mk-dictionary-app
-```
-
-Initialize Git LFS:
-
-```bash
-git lfs install
-git lfs pull
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Vite will display the local development URL in the terminal.
-
----
-
-## Available Scripts
-
-### Development server
-
-```bash
-npm run dev
-```
-
-### ESLint
-
-```bash
-npm run lint
-```
-
-### Production build
+Build the application with:
 
 ```bash
 npm run build
-```
-
-### Production preview
-
-```bash
 npm run preview
 ```
 
----
+Expected production assets include the compiled frontend, `msd-mk-demo.sqlite`, `sql-wasm.wasm`, and the public image files. The full `msd-mk.sqlite` should not appear in `dist/`.
 
-## Production Build
-
-The production build is created with:
-
-```bash
-npm run build
-```
-
-The full development database:
-
-```text
-public/msd-mk.sqlite
-```
-
-is intentionally excluded from the resulting `dist/` directory.
-
-The deployed application therefore uses only:
-
-```text
-msd-mk-demo.sqlite
-sql-wasm.wasm
-```
-
-together with the compiled frontend assets.
-
----
-
-## Client-Side SQLite
-
-The application uses `sql.js`, which provides SQLite through WebAssembly.
-
-The WebAssembly binary is stored at:
-
-```text
-public/sql-wasm.wasm
-```
-
-Database communication is handled through:
-
-```text
-src/db/client.js
-```
-
-SQL execution takes place in:
-
-```text
-src/db/sqlWorker.js
-```
-
-The application also supports IndexedDB caching with fallback to a fresh database download when the cache cannot be read.
-
----
-
-## Local Data and Privacy
-
-The application does not require registration or authentication.
-
-Favorite words are stored locally using:
-
-```text
-localStorage
-```
-
-The SQLite database cache is stored locally using:
-
-```text
-IndexedDB
-```
-
-Favorite-word data does not need to be sent to an external application server.
-
----
-
-## Deployment
-
-The production application is deployed on Vercel:
+The project is deployed on **Vercel**:
 
 [https://mkd-dictionary-app.vercel.app/home](https://mkd-dictionary-app.vercel.app/home)
 
-Because the application uses React Router with browser history routing, `vercel.json` provides the SPA rewrite required for direct access to routes such as:
+The `vercel.json` configuration rewrites SPA routes to `index.html`, allowing direct access and refreshes on routes such as:
 
 ```text
 /home
-/language
-/abbr/3
-/favorites
+/list/:letter
+/search/:term
 /details/:form
+/language
+/abbr/:group
+/favorites
+/not-found/:term
 ```
 
----
+Deployment under a subdirectory additionally requires consistent Vite `base` paths and hosting support for client-side routes.
+
+## Local Data and Privacy
+
+The dictionary does not require sign-in. Favorites, recent words, and search history are stored locally in the browser using `localStorage`. The downloaded SQLite file may be cached in IndexedDB.
+
+Clearing browser storage or using a different browser or device can remove or make this local data unavailable. No account-based synchronization is provided.
 
 ## Academic Documentation
 
-Project documentation is available in:
-
-```text
-docs/project_report.pdf
-docs/project_reportMK.pdf
-```
-
-These files contain the available project report versions.
-
----
+- [Project report (English)](docs/project_report.pdf)
+- [Project report (Macedonian)](docs/project_reportMK.pdf)
 
 ## Author
 
 **Nikola Sarafimov**
 
-- GitHub: [nikolasarafimov](https://github.com/nikolasarafimov)
-- LinkedIn: [Nikola Sarafimov](https://www.linkedin.com/in/nikola-sarafimov-418753357/)
-- Website: [nikolasarafimov.github.io/personal-website](https://nikolasarafimov.github.io/personal-website/)
+- [GitHub](https://github.com/nikolasarafimov)
+- [LinkedIn](https://www.linkedin.com/in/nikola-sarafimov)
+- [Personal website](https://nikolasarafimov.github.io)
 
----
+## Version
 
-## Release
-
-Current stable release:
-
-```text
-v1.0.1
-```
-
-The release includes the finalized responsive interface, browser-based SQLite architecture, database caching, favorites, production deployment configuration, and optimized production database bundle.
+`1.0.0` — aligned with the revised `package.json`. The final lint, production-build, database, and deployment checks should be completed before tagging a release.

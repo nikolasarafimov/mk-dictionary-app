@@ -1,0 +1,2511 @@
+.lexicon-results-page {
+  width:
+    min(
+      calc(100% - 48px),
+      1080px
+    );
+
+  margin-inline:
+    auto;
+
+  padding:
+    42px 0
+    88px;
+}
+
+
+.lexicon-back-link {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.72rem;
+
+  font-weight:
+    680;
+
+  text-decoration:
+    none;
+
+  transition:
+    color
+      var(--transition-fast);
+}
+
+
+.lexicon-back-link svg {
+  width:
+    14px;
+
+  height:
+    14px;
+
+  transition:
+    transform
+      var(--transition-fast);
+}
+
+
+.lexicon-back-link:hover {
+  color:
+    var(--color-brand);
+}
+
+
+.lexicon-back-link:hover svg {
+  transform:
+    translateX(-3px);
+}
+
+
+.lexicon-results-header {
+  padding-bottom:
+    40px;
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.lexicon-title-grid {
+  margin-top:
+    34px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items:
+    end;
+
+  gap:
+    60px;
+}
+
+
+.lexicon-title-copy {
+  min-width:
+    0;
+}
+
+
+.lexicon-eyebrow {
+  display:
+    block;
+
+  margin-bottom:
+    10px;
+
+  color:
+    var(--color-brand);
+
+  font-size:
+    0.64rem;
+
+  font-weight:
+    780;
+
+  letter-spacing:
+    0.1em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.lexicon-title-copy h1 {
+  max-width:
+    780px;
+
+  margin:
+    0;
+
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    clamp(
+      3.2rem,
+      6.4vw,
+      5.8rem
+    );
+
+  font-weight:
+    500;
+
+  line-height:
+    0.94;
+
+  letter-spacing:
+    -0.055em;
+}
+
+
+.lexicon-title-copy h1 em {
+  display:
+    inline;
+
+  margin-left:
+    0.18em;
+
+  color:
+    var(--color-brand);
+
+  font-style:
+    italic;
+
+  font-weight:
+    500;
+}
+
+
+.lexicon-title-copy p {
+  max-width:
+    590px;
+
+  margin:
+    22px 0
+    0;
+
+  color:
+    var(--color-text-soft);
+
+  font-size:
+    0.87rem;
+
+  line-height:
+    1.72;
+}
+
+
+.lexicon-result-stat {
+  min-width:
+    150px;
+
+  padding-left:
+    24px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    flex-start;
+
+  gap:
+    2px;
+
+  border-left:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.lexicon-result-stat > span {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.61rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.08em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.lexicon-result-stat strong {
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    clamp(
+      2.1rem,
+      4vw,
+      3.3rem
+    );
+
+  font-weight:
+    500;
+
+  line-height:
+    1;
+
+  letter-spacing:
+    -0.04em;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.lexicon-result-stat small {
+  margin-top:
+    3px;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.64rem;
+}
+
+
+.lexicon-letter-switcher {
+  padding:
+    25px 0;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    145px
+    minmax(0, 1fr);
+
+  gap:
+    26px;
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.lexicon-letter-switcher-heading {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  justify-content:
+    center;
+
+  gap:
+    3px;
+}
+
+
+.lexicon-letter-switcher-heading span {
+  color:
+    var(--color-text);
+
+  font-size:
+    0.73rem;
+
+  font-weight:
+    720;
+}
+
+
+.lexicon-letter-switcher-heading small {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.61rem;
+}
+
+
+.lexicon-letter-nav {
+  min-width:
+    0;
+}
+
+
+.lexicon-letter-nav .letter-nav {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      16,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    0;
+
+  border-top:
+    1px solid
+    var(--color-border);
+
+  border-left:
+    1px solid
+    var(--color-border);
+}
+
+
+.lexicon-letter-nav .letter-button {
+  min-width:
+    0;
+
+  min-height:
+    36px;
+
+  padding:
+    0;
+
+  border:
+    0;
+
+  border-right:
+    1px solid
+    var(--color-border);
+
+  border-bottom:
+    1px solid
+    var(--color-border);
+
+  border-radius:
+    0;
+
+  color:
+    var(--color-text-muted);
+
+  background:
+    transparent;
+
+  box-shadow:
+    none;
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    0.8rem;
+
+  font-weight:
+    600;
+
+  transform:
+    none;
+
+  transition:
+    color
+      var(--transition-fast),
+    background
+      var(--transition-fast);
+}
+
+
+.lexicon-letter-nav
+.letter-button:hover:not(:disabled) {
+  color:
+    var(--color-brand);
+
+  background:
+    var(--color-brand-soft);
+
+  box-shadow:
+    none;
+
+  transform:
+    none;
+}
+
+
+.lexicon-letter-nav .letter-button.active {
+  color:
+    #ffffff;
+
+  border-color:
+    var(--color-brand);
+
+  background:
+    var(--color-brand);
+
+  box-shadow:
+    none;
+}
+
+
+.lexicon-results-body {
+  padding-top:
+    36px;
+}
+
+
+.lexicon-toolbar {
+  min-height:
+    58px;
+
+  margin-bottom:
+    12px;
+
+  padding-bottom:
+    14px;
+
+  display:
+    flex;
+
+  align-items:
+    flex-end;
+
+  justify-content:
+    space-between;
+
+  gap:
+    30px;
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.lexicon-toolbar-copy {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+}
+
+
+.lexicon-toolbar-copy > svg {
+  width:
+    15px;
+
+  height:
+    15px;
+
+  flex:
+    0 0 auto;
+
+  color:
+    var(--color-brand);
+}
+
+
+.lexicon-toolbar-copy > div {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    1px;
+}
+
+
+.lexicon-toolbar-copy strong {
+  color:
+    var(--color-text);
+
+  font-size:
+    0.72rem;
+
+  font-weight:
+    720;
+}
+
+
+.lexicon-toolbar-copy span {
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.61rem;
+}
+
+
+.lexicon-filter {
+  width:
+    min(
+      100%,
+      340px
+    );
+
+  min-height:
+    42px;
+
+  padding:
+    0 10px
+    0 12px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    16px
+    minmax(0, 1fr)
+    auto;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  border:
+    1px solid
+    var(--color-border);
+
+  background:
+    var(--color-surface-raised);
+
+  transition:
+    border-color
+      var(--transition-fast),
+    box-shadow
+      var(--transition-fast);
+}
+
+
+.lexicon-filter:focus-within {
+  border-color:
+    var(--color-brand-border);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(143, 23, 52, 0.05);
+}
+
+
+.lexicon-filter > svg {
+  width:
+    14px;
+
+  height:
+    14px;
+
+  color:
+    var(--color-text-faint);
+}
+
+
+.lexicon-filter input {
+  min-width:
+    0;
+
+  width:
+    100%;
+
+  border:
+    0;
+
+  outline:
+    0;
+
+  color:
+    var(--color-text);
+
+  background:
+    transparent;
+
+  font-size:
+    0.74rem;
+}
+
+
+.lexicon-filter input::placeholder {
+  color:
+    var(--color-text-faint);
+}
+
+
+.lexicon-filter button {
+  width:
+    28px;
+
+  height:
+    28px;
+
+  padding:
+    0;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    0;
+
+  border-radius:
+    var(--radius-xs);
+
+  color:
+    var(--color-text-muted);
+
+  background:
+    transparent;
+
+  transition:
+    color
+      var(--transition-fast),
+    background
+      var(--transition-fast);
+}
+
+
+.lexicon-filter button:hover {
+  color:
+    var(--color-brand);
+
+  background:
+    var(--color-brand-soft);
+}
+
+
+.lexicon-filter button svg {
+  width:
+    13px;
+
+  height:
+    13px;
+}
+
+
+.lexicon-empty-state,
+.lexicon-error-state,
+.search-results-error {
+  min-height:
+    210px;
+
+  padding:
+    34px 0;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    20px;
+
+  border-top:
+    1px solid
+    var(--color-border-strong);
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.lexicon-empty-state > span,
+.lexicon-error-state > span,
+.search-results-error > span {
+  width:
+    44px;
+
+  height:
+    44px;
+
+  flex:
+    0 0 auto;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    1px solid
+    var(--color-brand-border);
+
+  border-radius:
+    var(--radius-md);
+
+  color:
+    var(--color-brand);
+
+  background:
+    var(--color-brand-soft);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    1.35rem;
+}
+
+
+.lexicon-error-state > span,
+.search-results-error > span {
+  border-color:
+    rgba(164, 38, 34, 0.18);
+
+  color:
+    var(--color-danger);
+
+  background:
+    var(--color-danger-soft);
+}
+
+
+.lexicon-empty-state strong,
+.lexicon-error-state strong,
+.search-results-error strong {
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    1.15rem;
+
+  font-weight:
+    600;
+}
+
+
+.lexicon-empty-state p,
+.lexicon-error-state p,
+.search-results-error p {
+  max-width:
+    500px;
+
+  margin:
+    6px 0
+    0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.74rem;
+
+  line-height:
+    1.65;
+}
+
+
+.search-results-v2 {
+  width:
+    min(
+      calc(100% - 48px),
+      1080px
+    );
+
+  margin-inline:
+    auto;
+
+  padding:
+    48px 0
+    90px;
+}
+
+
+.search-results-header {
+  padding-bottom:
+    35px;
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.search-results-back {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.63rem;
+
+  font-weight:
+    650;
+
+  text-decoration:
+    none;
+
+  transition:
+    color
+      var(--transition-fast);
+}
+
+
+.search-results-back:hover {
+  color:
+    var(--color-brand);
+}
+
+
+.search-results-back svg {
+  width:
+    13px;
+
+  height:
+    13px;
+
+  transition:
+    transform
+      var(--transition-fast);
+}
+
+
+.search-results-back:hover svg {
+  transform:
+    translateX(-3px);
+}
+
+
+.search-results-overline {
+  margin-top:
+    38px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.56rem;
+
+  font-weight:
+    750;
+
+  letter-spacing:
+    0.09em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.search-results-overline > span:first-child {
+  color:
+    var(--color-brand);
+}
+
+
+.search-results-overline > span:nth-child(2) {
+  width:
+    32px;
+
+  height:
+    1px;
+
+  background:
+    var(--color-border-strong);
+}
+
+
+.search-results-heading {
+  margin-top:
+    19px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items:
+    end;
+
+  gap:
+    50px;
+}
+
+
+.search-results-heading h1 {
+  margin:
+    0;
+
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    clamp(
+      3rem,
+      7vw,
+      5.5rem
+    );
+
+  font-weight:
+    500;
+
+  line-height:
+    0.95;
+
+  letter-spacing:
+    -0.055em;
+
+  overflow-wrap:
+    anywhere;
+}
+
+
+.search-results-heading p {
+  max-width:
+    650px;
+
+  margin:
+    19px 0
+    0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.7rem;
+
+  line-height:
+    1.7;
+}
+
+
+.search-results-total {
+  min-width:
+    140px;
+
+  padding-left:
+    22px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  border-left:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.search-results-total strong {
+  color:
+    var(--color-brand);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    2.5rem;
+
+  font-weight:
+    500;
+
+  line-height:
+    1;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.search-results-total span {
+  margin-top:
+    5px;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.57rem;
+}
+
+
+.search-match-summary {
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.search-match-summary button {
+  min-height:
+    72px;
+
+  padding:
+    0 18px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
+
+  border:
+    0;
+
+  border-right:
+    1px solid
+    var(--color-divider);
+
+  color:
+    var(--color-text-muted);
+
+  background:
+    transparent;
+
+  transition:
+    color
+      var(--transition-fast),
+    background
+      var(--transition-fast);
+}
+
+
+.search-match-summary button:last-child {
+  border-right:
+    0;
+}
+
+
+.search-match-summary button:hover,
+.search-match-summary button.active {
+  color:
+    var(--color-brand);
+
+  background:
+    var(--color-brand-soft);
+}
+
+
+.search-match-summary button span {
+  font-size:
+    0.62rem;
+
+  font-weight:
+    650;
+}
+
+
+.search-match-summary button strong {
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    1.1rem;
+
+  font-weight:
+    600;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.search-results-toolbar {
+  min-height:
+    78px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items:
+    center;
+
+  gap:
+    18px;
+
+  border-bottom:
+    1px solid
+    var(--color-divider);
+}
+
+
+.search-results-filter {
+  min-height:
+    45px;
+
+  padding:
+    0 11px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    17px
+    minmax(0, 1fr)
+    auto;
+
+  align-items:
+    center;
+
+  gap:
+    9px;
+
+  border:
+    1px solid
+    var(--color-border);
+
+  background:
+    var(--color-surface-raised);
+
+  transition:
+    border-color
+      var(--transition-fast),
+    box-shadow
+      var(--transition-fast);
+}
+
+
+.search-results-filter:focus-within {
+  border-color:
+    var(--color-brand-border);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(143, 23, 52, 0.05);
+}
+
+
+.search-results-filter > svg {
+  width:
+    14px;
+
+  height:
+    14px;
+
+  color:
+    var(--color-text-faint);
+}
+
+
+.search-results-filter input {
+  min-width:
+    0;
+
+  width:
+    100%;
+
+  border:
+    0;
+
+  outline:
+    0;
+
+  color:
+    var(--color-text);
+
+  background:
+    transparent;
+
+  font-size:
+    0.68rem;
+}
+
+
+.search-results-filter input::placeholder {
+  color:
+    var(--color-text-faint);
+}
+
+
+.search-results-filter button {
+  width:
+    28px;
+
+  height:
+    28px;
+
+  padding:
+    0;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  border:
+    0;
+
+  border-radius:
+    var(--radius-xs);
+
+  color:
+    var(--color-text-muted);
+
+  background:
+    transparent;
+
+  transition:
+    color
+      var(--transition-fast),
+    background
+      var(--transition-fast);
+}
+
+
+.search-results-filter button:hover {
+  color:
+    var(--color-brand);
+
+  background:
+    var(--color-brand-soft);
+}
+
+
+.search-results-filter button svg {
+  width:
+    12px;
+
+  height:
+    12px;
+}
+
+
+.search-results-sort {
+  min-height:
+    45px;
+
+  padding:
+    0 11px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    8px;
+
+  border:
+    1px solid
+    var(--color-border);
+
+  color:
+    var(--color-text-muted);
+
+  background:
+    var(--color-surface-raised);
+
+  transition:
+    border-color
+      var(--transition-fast),
+    box-shadow
+      var(--transition-fast);
+}
+
+
+.search-results-sort:focus-within {
+  border-color:
+    var(--color-brand-border);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(143, 23, 52, 0.05);
+}
+
+
+.search-results-sort svg {
+  width:
+    13px;
+
+  height:
+    13px;
+
+  flex:
+    0 0 auto;
+
+  color:
+    var(--color-brand);
+}
+
+
+.search-results-sort span {
+  font-size:
+    0.56rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.06em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.search-results-sort select {
+  border:
+    0;
+
+  outline:
+    0;
+
+  color:
+    var(--color-text);
+
+  background:
+    transparent;
+
+  font-size:
+    0.64rem;
+
+  font-weight:
+    650;
+}
+
+
+.search-results-current {
+  min-height:
+    47px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  color:
+    var(--color-text-faint);
+
+  font-size:
+    0.56rem;
+}
+
+
+.search-results-current strong {
+  color:
+    var(--color-text-soft);
+
+  font-weight:
+    700;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.word-index {
+  border-top:
+    1px solid
+    var(--color-border-strong);
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.word-index-header {
+  min-height:
+    38px;
+
+  padding:
+    0 12px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    44px
+    minmax(0, 1fr)
+    100px
+    28px;
+
+  align-items:
+    center;
+
+  gap:
+    11px;
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+
+  color:
+    var(--color-text-faint);
+
+  font-size:
+    0.51rem;
+
+  font-weight:
+    750;
+
+  letter-spacing:
+    0.07em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.word-index-virtual-list {
+  scrollbar-width:
+    thin;
+
+  scrollbar-color:
+    rgba(29, 29, 27, 0.18)
+    transparent;
+}
+
+
+.word-index-virtual-list::-webkit-scrollbar {
+  width:
+    7px;
+}
+
+
+.word-index-virtual-list::-webkit-scrollbar-track {
+  background:
+    transparent;
+}
+
+
+.word-index-virtual-list::-webkit-scrollbar-thumb {
+  border-radius:
+    var(--radius-pill);
+
+  background:
+    rgba(29, 29, 27, 0.14);
+}
+
+
+.word-index-row-shell {
+  padding:
+    2px 0;
+}
+
+
+.word-index-row {
+  position:
+    relative;
+
+  width:
+    100%;
+
+  height:
+    78px;
+
+  padding:
+    0 12px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    44px
+    minmax(0, 1fr)
+    100px
+    28px;
+
+  align-items:
+    center;
+
+  gap:
+    11px;
+
+  border:
+    0;
+
+  border-bottom:
+    1px solid
+    var(--color-divider);
+
+  color:
+    var(--color-text);
+
+  background:
+    transparent;
+
+  text-align:
+    left;
+
+  transition:
+    color
+      var(--transition-fast),
+    background
+      var(--transition-fast);
+}
+
+
+.word-index-row::before {
+  position:
+    absolute;
+
+  top:
+    0;
+
+  bottom:
+    0;
+
+  left:
+    0;
+
+  width:
+    2px;
+
+  content:
+    "";
+
+  background:
+    var(--color-brand);
+
+  opacity:
+    0;
+
+  transform:
+    scaleY(0.4);
+
+  transition:
+    opacity
+      var(--transition-fast),
+    transform
+      var(--transition-fast);
+}
+
+
+.word-index-row:hover {
+  color:
+    var(--color-brand);
+
+  background:
+    rgba(143, 23, 52, 0.035);
+}
+
+
+.word-index-row:hover::before {
+  opacity:
+    1;
+
+  transform:
+    scaleY(1);
+}
+
+
+.word-index-number {
+  color:
+    var(--color-text-faint);
+
+  font-size:
+    0.53rem;
+
+  font-weight:
+    750;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.word-index-entry {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    6px;
+}
+
+
+.word-index-title-line {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    10px;
+}
+
+
+.word-index-title-line > strong {
+  min-width:
+    0;
+
+  overflow:
+    hidden;
+
+  color:
+    currentColor;
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    1rem;
+
+  font-weight:
+    600;
+
+  line-height:
+    1.15;
+
+  letter-spacing:
+    -0.015em;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.word-index mark {
+  padding:
+    0;
+
+  color:
+    var(--color-brand);
+
+  background:
+    transparent;
+
+  font-weight:
+    inherit;
+
+  text-decoration:
+    underline;
+
+  text-decoration-color:
+    rgba(
+      143,
+      23,
+      52,
+      0.28
+    );
+
+  text-underline-offset:
+    3px;
+}
+
+
+.word-index-match {
+  flex:
+    0 0 auto;
+
+  font-size:
+    0.47rem;
+
+  font-weight:
+    760;
+
+  letter-spacing:
+    0.055em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.word-index-match.form {
+  color:
+    var(--color-brand);
+}
+
+
+.word-index-match.lemma {
+  color:
+    var(--color-accent);
+}
+
+
+.word-index-meta {
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    7px;
+
+  overflow:
+    hidden;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.56rem;
+
+  white-space:
+    nowrap;
+}
+
+
+.word-index-lemma {
+  min-width:
+    0;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  gap:
+    4px;
+}
+
+
+.word-index-lemma > span {
+  color:
+    var(--color-text-faint);
+
+  font-size:
+    0.47rem;
+
+  font-weight:
+    720;
+
+  letter-spacing:
+    0.05em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.word-index-lemma > strong {
+  overflow:
+    hidden;
+
+  max-width:
+    220px;
+
+  color:
+    var(--color-text-soft);
+
+  font-weight:
+    650;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.word-index-dot {
+  width:
+    3px;
+
+  height:
+    3px;
+
+  flex:
+    0 0 auto;
+
+  border-radius:
+    50%;
+
+  background:
+    var(--color-text-faint);
+}
+
+
+.word-index-morphology {
+  min-width:
+    0;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.word-index-tag {
+  overflow:
+    hidden;
+
+  color:
+    var(--color-text-faint);
+
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+
+  font-size:
+    0.52rem;
+
+  text-align:
+    right;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.word-index-arrow {
+  width:
+    26px;
+
+  height:
+    26px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  justify-self:
+    end;
+
+  color:
+    var(--color-text-faint);
+
+  transition:
+    color
+      var(--transition-fast),
+    transform
+      var(--transition-fast);
+}
+
+
+.word-index-arrow svg {
+  width:
+    13px;
+
+  height:
+    13px;
+}
+
+
+.word-index-row:hover .word-index-arrow {
+  color:
+    var(--color-brand);
+
+  transform:
+    translateX(3px);
+}
+
+
+.word-index-footer {
+  min-height:
+    42px;
+
+  padding:
+    0 12px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    5px;
+
+  color:
+    var(--color-text-faint);
+
+  font-size:
+    0.53rem;
+}
+
+
+.word-index-footer > span:first-child {
+  color:
+    var(--color-text-soft);
+
+  font-weight:
+    750;
+
+  font-variant-numeric:
+    tabular-nums;
+}
+
+
+.search-results-empty {
+  min-height:
+    250px;
+
+  display:
+    grid;
+
+  grid-template-columns:
+    65px
+    minmax(0, 430px);
+
+  align-items:
+    center;
+
+  gap:
+    20px;
+
+  border-top:
+    1px solid
+    var(--color-border-strong);
+
+  border-bottom:
+    1px solid
+    var(--color-border-strong);
+}
+
+
+.search-results-empty > span {
+  color:
+    rgba(
+      143,
+      23,
+      52,
+      0.15
+    );
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    3.8rem;
+}
+
+
+.search-results-empty strong {
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-editorial);
+
+  font-size:
+    1.2rem;
+
+  font-weight:
+    600;
+}
+
+
+.search-results-empty p {
+  margin:
+    6px 0
+    0;
+
+  color:
+    var(--color-text-muted);
+
+  font-size:
+    0.66rem;
+
+  line-height:
+    1.6;
+}
+
+
+.search-results-empty button {
+  margin-top:
+    14px;
+
+  padding:
+    0;
+
+  border:
+    0;
+
+  color:
+    var(--color-brand);
+
+  background:
+    transparent;
+
+  font-size:
+    0.64rem;
+
+  font-weight:
+    700;
+}
+
+
+.search-results-empty button:hover {
+  text-decoration:
+    underline;
+
+  text-underline-offset:
+    3px;
+}
+
+
+@media (max-width: 900px) {
+  .lexicon-title-grid {
+    gap:
+      34px;
+  }
+
+
+  .lexicon-letter-switcher {
+    grid-template-columns:
+      110px
+      minmax(0, 1fr);
+  }
+
+
+  .lexicon-letter-nav .letter-nav {
+    grid-template-columns:
+      repeat(
+        10,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+
+@media (max-width: 720px) {
+  .search-results-v2 {
+    width:
+      calc(100% - 30px);
+
+    padding:
+      38px 0
+      70px;
+  }
+
+
+  .search-results-heading {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      25px;
+  }
+
+
+  .search-results-total {
+    min-width:
+      0;
+
+    padding:
+      15px 0
+      0;
+
+    border-top:
+      1px solid
+      var(--color-divider);
+
+    border-left:
+      0;
+  }
+
+
+  .search-match-summary {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .search-match-summary button {
+    min-height:
+      52px;
+
+    border-right:
+      0;
+
+    border-bottom:
+      1px solid
+      var(--color-divider);
+  }
+
+
+  .search-match-summary button:last-child {
+    border-bottom:
+      0;
+  }
+
+
+  .search-results-toolbar {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      10px;
+
+    padding:
+      14px 0;
+  }
+
+
+  .search-results-sort {
+    width:
+      100%;
+  }
+
+
+  .search-results-sort select {
+    margin-left:
+      auto;
+  }
+
+
+  .word-index-header {
+    grid-template-columns:
+      30px
+      minmax(0, 1fr)
+      26px;
+  }
+
+
+  .word-index-header > span:nth-child(3) {
+    display:
+      none;
+  }
+
+
+  .word-index-row {
+    grid-template-columns:
+      30px
+      minmax(0, 1fr)
+      26px;
+  }
+
+
+  .word-index-tag {
+    display:
+      none;
+  }
+
+
+  .word-index-match {
+    display:
+      none;
+  }
+
+
+  .word-index-lemma > strong {
+    max-width:
+      145px;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .lexicon-results-page {
+    width:
+      calc(100% - 30px);
+
+    padding:
+      30px 0
+      64px;
+  }
+
+
+  .lexicon-results-header {
+    padding-bottom:
+      32px;
+  }
+
+
+  .lexicon-title-grid {
+    grid-template-columns:
+      1fr;
+
+    align-items:
+      start;
+
+    gap:
+      28px;
+  }
+
+
+  .lexicon-title-copy h1 {
+    font-size:
+      clamp(
+        2.8rem,
+        13vw,
+        4.3rem
+      );
+  }
+
+
+  .lexicon-result-stat {
+    min-width:
+      0;
+
+    padding:
+      16px 0
+      0;
+
+    border-top:
+      1px solid
+      var(--color-divider);
+
+    border-left:
+      0;
+  }
+
+
+  .lexicon-letter-switcher {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      14px;
+  }
+
+
+  .lexicon-letter-nav .letter-nav {
+    grid-template-columns:
+      repeat(
+        8,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  .lexicon-toolbar {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+
+    gap:
+      14px;
+  }
+
+
+  .lexicon-filter {
+    width:
+      100%;
+  }
+
+
+  .lexicon-empty-state,
+  .lexicon-error-state,
+  .search-results-error {
+    min-height:
+      180px;
+
+    align-items:
+      flex-start;
+
+    padding:
+      30px 0;
+  }
+
+
+  .word-index-meta {
+    max-width:
+      100%;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .lexicon-results-page {
+    width:
+      calc(100% - 22px);
+
+    padding-top:
+      24px;
+  }
+
+
+  .lexicon-title-grid {
+    margin-top:
+      27px;
+  }
+
+
+  .lexicon-title-copy h1 {
+    font-size:
+      clamp(
+        2.55rem,
+        13.5vw,
+        3.7rem
+      );
+  }
+
+
+  .lexicon-letter-nav .letter-nav {
+    grid-template-columns:
+      repeat(
+        6,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  .lexicon-empty-state,
+  .lexicon-error-state,
+  .search-results-error {
+    gap:
+      14px;
+  }
+}
+
+
+@media (max-width: 460px) {
+  .search-results-v2 {
+    width:
+      calc(100% - 22px);
+  }
+
+
+  .search-results-heading h1 {
+    font-size:
+      clamp(
+        2.6rem,
+        14vw,
+        4rem
+      );
+  }
+
+
+  .search-results-overline > span:nth-child(2),
+  .search-results-overline > span:last-child {
+    display:
+      none;
+  }
+
+
+  .word-index-row,
+  .word-index-header {
+    padding:
+      0 7px;
+  }
+
+
+  .word-index-morphology,
+  .word-index-dot {
+    display:
+      none;
+  }
+
+
+  .search-results-empty {
+    grid-template-columns:
+      1fr;
+
+    align-content:
+      center;
+  }
+
+
+  .search-results-empty > span {
+    font-size:
+      3rem;
+  }
+}
+
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  .lexicon-back-link,
+  .lexicon-back-link svg,
+  .lexicon-letter-nav .letter-button,
+  .lexicon-filter,
+  .lexicon-filter button,
+  .search-results-back,
+  .search-results-back svg,
+  .search-match-summary button,
+  .search-results-filter,
+  .search-results-filter button,
+  .search-results-sort,
+  .word-index-row,
+  .word-index-row::before,
+  .word-index-arrow {
+    transition:
+      none;
+  }
+}

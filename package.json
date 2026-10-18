@@ -1,3 +1,4 @@
+
 {
   "name": "mk-dictionary-app",
   "private": true,
@@ -8,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "check": "npm run lint && npm run build",
     "preview": "vite preview"
   },
   "dependencies": {

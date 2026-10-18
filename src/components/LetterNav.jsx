@@ -32,38 +32,68 @@ const LETTERS = [
   'Ш',
 ]
 
+
 export default function LetterNav({
-  selectedLetter,
+  selectedLetter = '',
   onLetterClick,
-  disabled,
+  disabled = false,
 }) {
+  const handleLetterClick =
+    (letter) => {
+      if (
+        disabled
+        || typeof onLetterClick
+          !== 'function'
+      ) {
+        return
+      }
+
+      onLetterClick(
+        letter,
+      )
+    }
+
+
   return (
     <nav
       className="letter-nav"
-      aria-label="Пребарување по почетна буква"
+      aria-label="Македонска азбука"
     >
       {LETTERS.map(
         (letter) => {
           const isActive =
-            selectedLetter === letter
+            selectedLetter
+            === letter
 
           return (
             <button
               key={letter}
               type="button"
               className={
-                isActive
-                  ? 'active'
-                  : ''
+                `letter-button ${
+                  isActive
+                    ? 'active'
+                    : ''
+                }`
               }
-              aria-pressed={
+              aria-label={
+                `Прикажи зборови на буквата ${letter}`
+              }
+              aria-current={
                 isActive
+                  ? 'page'
+                  : undefined
+              }
+              title={
+                `Зборови на „${letter}“`
               }
               disabled={
                 disabled
               }
               onClick={() =>
-                onLetterClick(letter)
+                handleLetterClick(
+                  letter,
+                )
               }
             >
               {letter}

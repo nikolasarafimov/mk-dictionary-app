@@ -1,3 +1,4 @@
+
 import sqlite3
 from contextlib import closing
 from pathlib import Path
@@ -12,42 +13,34 @@ TEMP_DB = PROJECT_ROOT / "public" / "msd-mk-demo.tmp.sqlite"
 TOTAL_DEMO_ROWS = 30_000
 
 MACEDONIAN_LETTERS = (
-    "А",
-    "Б",
-    "В",
-    "Г",
-    "Д",
-    "Ѓ",
-    "Е",
-    "Ж",
-    "З",
-    "Ѕ",
-    "И",
-    "Ј",
-    "К",
-    "Л",
-    "Љ",
-    "М",
-    "Н",
-    "Њ",
-    "О",
-    "П",
-    "Р",
-    "С",
-    "Т",
-    "Ќ",
-    "У",
-    "Ф",
-    "Х",
-    "Ц",
-    "Ч",
-    "Џ",
-    "Ш",
+    "А", "Б", "В", "Г", "Д", "Ѓ", "Е", "Ж",
+    "З", "Ѕ", "И", "Ј", "К", "Л", "Љ",
+    "М", "Н", "Њ", "О", "П", "Р", "С",
+    "Т", "Ќ", "У", "Ф", "Х", "Ц", "Ч",
+    "Џ", "Ш",
 )
 
 
 def quote_identifier(identifier):
-    return f'"{identifier.replace(chr(34), chr(34) * 2)}"'
+    escaped = identifier.replace('"', '""')
+    return f'"{escaped}"'
+
+
+def verify_source_database_file():
+    if not SOURCE_DB.is_file():
+        raise FileNotFoundError(
+            f"Source database was not found: {SOURCE_DB}"
+        )
+
+    with SOURCE_DB.open("rb") as source_file:
+        header = source_file.read(16)
+
+    if header != b"SQLite format 3\x00":
+        raise RuntimeError(
+            "The source file is not a valid SQLite database. "
+            "If it is managed by Git LFS, run "
+            "'git lfs pull' before generating the demo database."
+        )
 
 
 def get_table_sql(connection, table_name):
@@ -63,7 +56,8 @@ def get_table_sql(connection, table_name):
 
     if not row or not row[0]:
         raise RuntimeError(
-            f"Table {table_name!r} was not found in the source database."
+            f"Table {table_name!r} was not found "
+            "in the source database."
         )
 
     return row[0]
@@ -76,14 +70,12 @@ def get_table_columns(connection, table_name):
         f"PRAGMA table_info({quoted_table})"
     ).fetchall()
 
-    columns = [
-        row[1]
-        for row in rows
-    ]
+    columns = [row[1] for row in rows]
 
     if not columns:
         raise RuntimeError(
-            f"Could not determine columns for table {table_name!r}."
+            f"Could not determine columns "
+            f"for table {table_name!r}."
         )
 
     return columns
@@ -97,8 +89,6 @@ def copy_words(source, destination):
         table_name,
     )
 
-    destination.execute(create_sql)
-
     columns = get_table_columns(
         source,
         table_name,
@@ -110,19 +100,17 @@ def copy_words(source, destination):
         "tag",
     }
 
-    missing_columns = (
-        required_columns
-        - set(columns)
-    )
+    missing_columns = required_columns - set(columns)
 
     if missing_columns:
-        missing = ", ".join(
-            sorted(missing_columns)
-        )
+        missing = ", ".join(sorted(missing_columns))
 
         raise RuntimeError(
-            f"The words table is missing required columns: {missing}"
+            f"The words table is missing "
+            f"required columns: {missing}"
         )
+
+    destination.execute(create_sql)
 
     quoted_columns = ", ".join(
         quote_identifier(column)
@@ -130,24 +118,20 @@ def copy_words(source, destination):
     )
 
     placeholders = ", ".join(
-        "?"
-        for _ in columns
+        "?" for _ in columns
     )
 
     insert_sql = (
-        f'INSERT INTO "words" '
-        f"({quoted_columns}) "
+        f'INSERT INTO "words" ({quoted_columns}) '
         f"VALUES ({placeholders})"
     )
 
     rows_per_letter = (
-        TOTAL_DEMO_ROWS
-        // len(MACEDONIAN_LETTERS)
+        TOTAL_DEMO_ROWS // len(MACEDONIAN_LETTERS)
     )
 
     remainder = (
-        TOTAL_DEMO_ROWS
-        % len(MACEDONIAN_LETTERS)
+        TOTAL_DEMO_ROWS % len(MACEDONIAN_LETTERS)
     )
 
     total_copied = 0
@@ -157,17 +141,11 @@ def copy_words(source, destination):
         "Macedonian dictionary sample..."
     )
 
-    for index, letter in enumerate(
-        MACEDONIAN_LETTERS
-    ):
+    for index, letter in enumerate(MACEDONIAN_LETTERS):
         limit = rows_per_letter
 
         if index < remainder:
             limit += 1
-
-        lowercase_letter = (
-            letter.lower()
-        )
 
         rows = source.execute(
             f"""
@@ -179,10 +157,16 @@ def copy_words(source, destination):
             """,
             (
                 letter,
-                lowercase_letter,
+                letter.lower(),
                 limit,
             ),
         ).fetchall()
+
+        if not rows:
+            raise RuntimeError(
+                "The source database contains no word forms "
+                f"beginning with the letter {letter!r}."
+            )
 
         destination.executemany(
             insert_sql,
@@ -193,13 +177,11 @@ def copy_words(source, destination):
         total_copied += copied
 
         print(
-            f"{letter}: copied "
-            f"{copied:,} rows"
+            f"{letter}: copied {copied:,} rows"
         )
 
     print(
-        f"Copied {total_copied:,} "
-        "dictionary rows in total."
+        f"Copied {total_copied:,} dictionary rows in total."
     )
 
     return total_copied
@@ -219,28 +201,15 @@ def copy_word_indexes(source, destination):
 
     for name, sql in indexes:
         destination.execute(sql)
-
-        print(
-            f"Created index: {name}"
-        )
+        print(f"Created index: {name}")
 
 
-def validate_demo_database(
-    connection,
-    expected_rows,
-):
+def validate_demo_database(connection, expected_rows):
     row = connection.execute(
-        """
-        SELECT COUNT(*)
-        FROM words
-        """
+        "SELECT COUNT(*) FROM words"
     ).fetchone()
 
-    actual_rows = (
-        row[0]
-        if row
-        else 0
-    )
+    actual_rows = row[0] if row else 0
 
     if actual_rows != expected_rows:
         raise RuntimeError(
@@ -249,56 +218,87 @@ def validate_demo_database(
             f"found {actual_rows:,}."
         )
 
+    if actual_rows == 0 or actual_rows > TOTAL_DEMO_ROWS:
+        raise RuntimeError(
+            "Demo database contains an invalid number "
+            f"of rows: {actual_rows:,}."
+        )
+
     letters_found = {
-        row[0]
+        str(row[0]).upper()
         for row in connection.execute(
             """
-            SELECT DISTINCT
-                substr(form, 1, 1)
+            SELECT DISTINCT substr(form, 1, 1)
             FROM words
             WHERE form IS NOT NULL
               AND form != ''
             """
         ).fetchall()
+        if row[0]
     }
 
-    available_letters = [
+    missing_letters = [
         letter
         for letter in MACEDONIAN_LETTERS
-        if (
-            letter in letters_found
-            or letter.lower() in letters_found
-        )
+        if letter not in letters_found
     ]
+
+    if missing_letters:
+        missing = ", ".join(missing_letters)
+
+        raise RuntimeError(
+            "Demo database alphabet validation failed. "
+            f"Missing Macedonian letters: {missing}"
+        )
+
+    integrity_row = connection.execute(
+        "PRAGMA quick_check"
+    ).fetchone()
+
+    if not integrity_row or integrity_row[0] != "ok":
+        details = (
+            integrity_row[0]
+            if integrity_row
+            else "No integrity check result"
+        )
+
+        raise RuntimeError(
+            "Demo database integrity check failed: "
+            f"{details}"
+        )
 
     print(
         "Alphabet coverage: "
-        f"{len(available_letters)}/"
+        f"{len(MACEDONIAN_LETTERS)}/"
         f"{len(MACEDONIAN_LETTERS)} letters"
     )
 
+    print("SQLite integrity check: OK")
+
+    return actual_rows
+
 
 def create_demo_database():
-    if not SOURCE_DB.exists():
-        raise FileNotFoundError(
-            f"Source database not found: "
-            f"{SOURCE_DB}"
+    if TOTAL_DEMO_ROWS < len(MACEDONIAN_LETTERS):
+        raise ValueError(
+            "TOTAL_DEMO_ROWS must be at least "
+            "the number of Macedonian alphabet letters."
         )
 
-    if TEMP_DB.exists():
-        TEMP_DB.unlink()
+    verify_source_database_file()
 
-    print(
-        f"Source database: {SOURCE_DB}"
-    )
+    TEMP_DB.unlink(missing_ok=True)
 
-    print(
-        f"Target demo database: {DEMO_DB}"
-    )
+    print(f"Source database: {SOURCE_DB}")
+    print(f"Target demo database: {DEMO_DB}")
 
     try:
+        source_uri = (
+            f"{SOURCE_DB.resolve().as_uri()}?mode=ro"
+        )
+
         with closing(
-            sqlite3.connect(SOURCE_DB)
+            sqlite3.connect(source_uri, uri=True)
         ) as source:
             with closing(
                 sqlite3.connect(TEMP_DB)
@@ -308,12 +308,10 @@ def create_demo_database():
                 )
 
                 destination.execute(
-                    "PRAGMA synchronous = OFF"
+                    "PRAGMA synchronous = NORMAL"
                 )
 
-                destination.execute(
-                    "BEGIN"
-                )
+                destination.execute("BEGIN")
 
                 copied_rows = copy_words(
                     source,
@@ -327,47 +325,36 @@ def create_demo_database():
 
                 destination.commit()
 
-                validate_demo_database(
-                    destination,
-                    copied_rows,
-                )
-
-                destination.execute(
-                    "ANALYZE"
-                )
-
+                destination.execute("ANALYZE")
                 destination.commit()
 
-        if DEMO_DB.exists():
-            DEMO_DB.unlink()
-
-        TEMP_DB.replace(
-            DEMO_DB
+        temp_uri = (
+            f"{TEMP_DB.resolve().as_uri()}?mode=ro"
         )
 
-    except Exception:
-        if TEMP_DB.exists():
-            TEMP_DB.unlink()
+        with closing(
+            sqlite3.connect(temp_uri, uri=True)
+        ) as validation_connection:
+            validate_demo_database(
+                validation_connection,
+                copied_rows,
+            )
 
+        TEMP_DB.replace(DEMO_DB)
+
+    except Exception:
+        TEMP_DB.unlink(missing_ok=True)
         raise
 
     size_mb = (
-        DEMO_DB.stat().st_size
-        / (1024 * 1024)
+        DEMO_DB.stat().st_size / (1024 * 1024)
     )
 
     print()
-    print(
-        "Demo database created successfully."
-    )
-
-    print(
-        f"Rows: {copied_rows:,}"
-    )
-
-    print(
-        f"Size: {size_mb:.2f} MB"
-    )
+    print("Demo database created successfully.")
+    print(f"Rows: {copied_rows:,}")
+    print(f"Size: {size_mb:.2f} MB")
+    print(f"Output: {DEMO_DB}")
 
 
 if __name__ == "__main__":

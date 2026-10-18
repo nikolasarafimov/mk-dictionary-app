@@ -1,0 +1,356 @@
+:root {
+  --font-ui:
+    Inter,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  --font-editorial:
+    "Iowan Old Style",
+    "Palatino Linotype",
+    "Book Antiqua",
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  --color-bg: #f5f3ef;
+  --color-bg-soft: #faf9f6;
+
+  --color-surface: #fffefa;
+  --color-surface-soft: #f8f6f2;
+  --color-surface-raised: #ffffff;
+
+  --color-text: #1d1d1b;
+  --color-text-soft: #56544f;
+  --color-text-muted: #7b7871;
+  --color-text-faint: #9a968e;
+
+  --color-brand: #8f1734;
+  --color-brand-hover: #741129;
+  --color-brand-strong: #691025;
+
+  --color-brand-soft:
+    rgba(143, 23, 52, 0.075);
+
+  --color-brand-border:
+    rgba(143, 23, 52, 0.18);
+
+  --color-accent: #ad8136;
+
+  --color-accent-soft:
+    rgba(173, 129, 54, 0.1);
+
+  --color-border:
+    rgba(29, 29, 27, 0.1);
+
+  --color-border-strong:
+    rgba(29, 29, 27, 0.17);
+
+  --color-divider:
+    rgba(29, 29, 27, 0.085);
+
+  --color-danger: #a42622;
+
+  --color-danger-soft:
+    rgba(164, 38, 34, 0.075);
+
+  --color-success: #276749;
+
+  --color-success-soft:
+    rgba(39, 103, 73, 0.08);
+
+  --shadow-xs:
+    0 1px 2px
+    rgba(22, 20, 18, 0.04);
+
+  --shadow-sm:
+    0 4px 16px
+    rgba(22, 20, 18, 0.055);
+
+  --shadow-md:
+    0 12px 32px
+    rgba(22, 20, 18, 0.075);
+
+  --shadow-lg:
+    0 22px 60px
+    rgba(22, 20, 18, 0.11);
+
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  --container-width: 1180px;
+  --content-width: 960px;
+  --reading-width: 760px;
+  --header-height: 76px;
+
+  --transition-fast:
+    150ms cubic-bezier(
+      0.2,
+      0,
+      0,
+      1
+    );
+
+  --transition-normal:
+    240ms cubic-bezier(
+      0.2,
+      0,
+      0,
+      1
+    );
+
+  --transition-slow:
+    380ms cubic-bezier(
+      0.2,
+      0,
+      0,
+      1
+    );
+
+  font-family:
+    var(--font-ui);
+
+  color:
+    var(--color-text);
+
+  background:
+    var(--color-bg);
+
+  font-synthesis: none;
+
+  text-rendering:
+    optimizeLegibility;
+
+  -webkit-font-smoothing:
+    antialiased;
+
+  -moz-osx-font-smoothing:
+    grayscale;
+}
+
+
+*,
+*::before,
+*::after {
+  box-sizing:
+    border-box;
+}
+
+
+html {
+  min-width: 320px;
+
+  background:
+    var(--color-bg);
+
+  scrollbar-width:
+    thin;
+
+  scrollbar-color:
+    rgba(29, 29, 27, 0.2)
+    transparent;
+}
+
+
+body {
+  margin: 0;
+
+  min-width: 320px;
+  min-height: 100vh;
+
+  color:
+    var(--color-text);
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8f7f4 0,
+      var(--color-bg) 420px
+    );
+
+  font-family:
+    var(--font-ui);
+}
+
+
+button,
+input,
+textarea,
+select {
+  font:
+    inherit;
+}
+
+
+button,
+a {
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+button {
+  color:
+    inherit;
+}
+
+
+button:not(:disabled) {
+  cursor:
+    pointer;
+}
+
+
+button:disabled {
+  cursor:
+    not-allowed;
+}
+
+
+a {
+  color:
+    inherit;
+}
+
+
+strong,
+b {
+  font-weight:
+    700;
+}
+
+
+::selection {
+  color:
+    #ffffff;
+
+  background:
+    var(--color-brand);
+}
+
+
+:focus-visible {
+  outline:
+    2px solid
+    rgba(143, 23, 52, 0.38);
+
+  outline-offset:
+    3px;
+}
+
+
+html::-webkit-scrollbar {
+  width:
+    9px;
+}
+
+
+html::-webkit-scrollbar-track {
+  background:
+    transparent;
+}
+
+
+html::-webkit-scrollbar-thumb {
+  border:
+    2px solid
+    transparent;
+
+  border-radius:
+    var(--radius-pill);
+
+  background:
+    rgba(29, 29, 27, 0.18);
+
+  background-clip:
+    padding-box;
+}
+
+
+html::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(29, 29, 27, 0.28);
+
+  background-clip:
+    padding-box;
+}
+
+
+.editorial-title {
+  font-family:
+    var(--font-editorial);
+
+  font-weight:
+    600;
+
+  letter-spacing:
+    -0.035em;
+}
+
+
+.ui-eyebrow {
+  color:
+    var(--color-brand);
+
+  font-size:
+    0.7rem;
+
+  font-weight:
+    750;
+
+  letter-spacing:
+    0.095em;
+
+  text-transform:
+    uppercase;
+}
+
+
+@media (
+  prefers-reduced-motion:
+  reduce
+) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior:
+      auto !important;
+
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+  }
+}
+
+
+button,
+input,
+textarea,
+select {
+  margin: 0;
+}
+
+img,
+svg {
+  display: block;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+[hidden] {
+  display: none !important;
+}
