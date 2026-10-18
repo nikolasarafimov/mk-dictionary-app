@@ -1,0 +1,86 @@
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, build and database assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      GIT_LFS_SKIP_SMUDGE: '1'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          lfs: false
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint and production build
+        run: npm run check
+
+      - name: Validate production assets
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import sqlite3
+
+          dist = Path('dist')
+          required = (
+              'index.html',
+              'msd-mk-demo.sqlite',
+              'sql-wasm.wasm',
+              'logo.png',
+              'recnikLogo.png',
+          )
+
+          missing = [name for name in required if not (dist / name).is_file()]
+          if missing:
+              raise SystemExit(f'Missing production assets: {", ".join(missing)}')
+
+          if (dist / 'msd-mk.sqlite').exists():
+              raise SystemExit('Full SQLite database must not be bundled in this demo build.')
+
+          demo = (dist / 'msd-mk-demo.sqlite').resolve()
+          with sqlite3.connect(f'{demo.as_uri()}?mode=ro', uri=True) as conn:
+              integrity = conn.execute('PRAGMA quick_check').fetchone()[0]
+              if integrity != 'ok':
+                  raise SystemExit(f'Demo SQLite integrity check failed: {integrity}')
+
+              word_count = conn.execute('SELECT COUNT(*) FROM words').fetchone()[0]
+              if word_count <= 0:
+                  raise SystemExit('Demo database contains no word forms.')
+
+          with (dist / 'sql-wasm.wasm').open('rb') as wasm:
+              if wasm.read(4) != b'\x00asm':
+                  raise SystemExit('Invalid WebAssembly binary header.')
+
+          print(f'Production assets verified. Demo database: {word_count:,} rows.')
+          PY
