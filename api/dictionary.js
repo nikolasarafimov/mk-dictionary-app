@@ -1,3 +1,4 @@
+
 import {
   getDidYouMeanSuggestions,
   getRandomForm,
@@ -12,6 +13,8 @@ import {
 } from '../server/dictionary.js'
 
 const MAX_INPUT = 80
+const MAX_BODY_BYTES = 12000
+
 const OPERATIONS = Object.freeze({
   getTotalForms: { fn: getTotalForms, args: [] },
   getRandomForm: { fn: getRandomForm, args: [] },
@@ -25,18 +28,34 @@ const OPERATIONS = Object.freeze({
   getWordsByForms: { fn: getWordsByForms, args: ['forms'] },
 })
 
+function reply(data, status = 200) {
+  return Response.json(data, {
+    status,
+    headers: {
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  })
+}
+
 function validateArgs(spec, inputs) {
   if (!Array.isArray(inputs) || inputs.length > spec.length) return null
+
   const validated = []
+
   for (let i = 0; i < spec.length; i += 1) {
     const rule = spec[i]
     const value = inputs[i]
+
     if (rule === 'text') {
       if (typeof value !== 'string' || value.trim().length > MAX_INPUT) return null
       validated.push(value.trim())
     } else if (rule === 'forms') {
-      if (!Array.isArray(value) || value.length > 100 ||
-          value.some((item) => typeof item !== 'string' || item.length > MAX_INPUT)) return null
+      if (
+        !Array.isArray(value)
+        || value.length > 100
+        || value.some((item) => typeof item !== 'string' || item.length > MAX_INPUT)
+      ) return null
       validated.push(value)
     } else {
       const n = value === undefined ? rule : Number(value)
@@ -44,39 +63,90 @@ function validateArgs(spec, inputs) {
       validated.push(Math.min(n, rule))
     }
   }
+
   return validated
 }
 
-export async function POST(request) {
-  if (Number(request.headers.get('content-length') || 0) > 12000) {
-    return Response.json({ ok: false, error: 'Request too large' }, { status: 413 })
+async function parseLimitedJson(request) {
+  const contentType = request.headers.get('content-type') ?? ''
+  if (!/^application\/json(?:\s*;|\s*$)/i.test(contentType.trim())) {
+    return { error: 'Expected application/json', status: 415 }
   }
 
-  let body
+  const declaredLength = request.headers.get('content-length')
+  if (declaredLength !== null && Number(declaredLength) > MAX_BODY_BYTES) {
+    return { error: 'Request too large', status: 413 }
+  }
+
+  if (!request.body || typeof request.body.getReader !== 'function') {
+    return { error: 'Invalid request body', status: 400 }
+  }
+
+  const reader = request.body.getReader()
+  const chunks = []
+  let total = 0
+
   try {
-    body = await request.json()
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      total += value.byteLength
+      if (total > MAX_BODY_BYTES) {
+        await reader.cancel().catch(() => {})
+        return { error: 'Request too large', status: 413 }
+      }
+      chunks.push(value)
+    }
   } catch {
-    return Response.json({ ok: false, error: 'Invalid JSON' }, { status: 400 })
+    return { error: 'Invalid request body', status: 400 }
+  } finally {
+    reader.releaseLock()
   }
 
-  const operation = typeof body?.operation === 'string' ? body.operation : ''
+  const buffer = new Uint8Array(total)
+  let offset = 0
+
+  for (const chunk of chunks) {
+    buffer.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+
+  try {
+    const data = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(buffer))
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return { error: 'Invalid JSON object', status: 400 }
+    }
+    return { data }
+  } catch {
+    return { error: 'Invalid JSON', status: 400 }
+  }
+}
+
+export async function POST(request) {
+  const parsed = await parseLimitedJson(request)
+  if (parsed.error) {
+    return reply({ ok: false, error: parsed.error }, parsed.status)
+  }
+
+  const { data } = parsed
+  const operation = typeof data.operation === 'string' ? data.operation : ''
   const spec = Object.hasOwn(OPERATIONS, operation) ? OPERATIONS[operation] : null
+
   if (!spec) {
-    return Response.json({ ok: false, error: 'Unsupported operation' }, { status: 400 })
+    return reply({ ok: false, error: 'Unsupported operation' }, 400)
   }
 
-  const args = validateArgs(spec.args, body.args ?? [])
+  const args = validateArgs(spec.args, data.args ?? [])
   if (args === null) {
-    return Response.json({ ok: false, error: 'Invalid arguments' }, { status: 400 })
+    return reply({ ok: false, error: 'Invalid arguments' }, 400)
   }
 
   try {
     const result = await spec.fn(...args)
-    return Response.json({ ok: true, result }, {
-      headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' },
-    })
+    return reply({ ok: true, result })
   } catch (error) {
     console.error(`Dictionary API ${operation} failed:`, error?.name || 'Error')
-    return Response.json({ ok: false, error: 'Dictionary query failed' }, { status: 502 })
+    return reply({ ok: false, error: 'Dictionary query failed' }, 502)
   }
 }
