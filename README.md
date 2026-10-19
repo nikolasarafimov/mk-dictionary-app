@@ -1,272 +1,142 @@
-# Дигитален македонски речник
+# Македонски речник
 
 ### Digital Macedonian Dictionary
 
-A client-side web application for searching and exploring Macedonian word forms, lemmas, and morphological information. Built with React, SQLite, WebAssembly, and a dedicated Web Worker, the dictionary runs directly in the browser without a separate database server.
+A modern, responsive web application for exploring Macedonian word forms, lemmas, and morphological tags. Built with **React 19**, **Vite 6**, **SQLite**, and **Turso**, with two supported database modes: a small browser-based demo and a server-backed full dictionary.
 
-**[Live Demo](https://mkd-dictionary-app.vercel.app/home)** · **[Source Code](https://github.com/nikolasarafimov/mk-dictionary-app)**
+**[Live website](https://mk-dictionary-app.vercel.app/home)** · **[Source code](https://github.com/nikolasarafimov/mk-dictionary-app)**
 
-**Author:** Nikola Sarafimov  
-**Academic programme:** PIT, Faculty of Computer Science and Engineering (FINKI), third year  
-**Project version:** `1.0.0`
+**Developer:** [Nikola Sarafimov](https://github.com/nikolasarafimov)
+**Version:** `1.0.0`
+**Academic context:** PIT, Faculty of Computer Science and Engineering (FINKI)
 
 ## Overview
 
-The application provides a searchable interface to Macedonian dictionary data, including word forms, their lemmas, and morphological tags. SQLite queries run inside a Web Worker through `sql.js` and WebAssembly, keeping database processing away from the main UI thread.
+The dictionary supports two data sources without requiring a different user interface:
 
-The repository includes a full development database containing more than **1.3 million word forms** and a smaller demonstration database intended for production deployment. The application can cache the downloaded database in IndexedDB for subsequent visits.
+| Mode | Data source | Word forms | Processing |
+| --- | --- | ---: | --- |
+| Browser demo | `public/msd-mk-demo.sqlite` | 28,580 in the current snapshot | `sql.js` + WebAssembly inside a Web Worker |
+| Full dictionary | Private Turso cloud database | **1,323,718** | Vercel serverless API + read-only SQL queries |
+
+The **currently published production site uses the demo database**. The full-dictionary configuration has been exercised separately in a protected Vercel Preview deployment. Enabling the full dictionary for production requires an explicit environment configuration change and a new deployment.
+
+The full database is **not downloaded to visitors' browsers** in Turso mode. Visitors receive only API query results. This does not prevent determined users from collecting publicly searchable results over time.
 
 ## Features
 
-- **Dictionary search:** Exact and partial word-form lookup with autocomplete suggestions and keyboard navigation.
-- **Alphabetical browsing:** Navigate word forms by the 31 letters of the Macedonian alphabet.
-- **Word details:** View the selected form, lemma, morphological tag, and decoded morphological information.
-- **Related word forms:** Explore other forms associated with the same lemma.
-- **Random word:** Open a randomly selected dictionary entry.
-- **Favorites:** Save and remove favorite words locally in the browser.
-- **Search history and recent words:** Quickly revisit previous searches and recently opened entries.
-- **Command palette:** Access search and navigation actions through a keyboard-friendly interface.
-- **Language reference:** Read about Macedonian language classification, dialects, alphabet, linguistic characteristics, and development.
-- **Abbreviations:** Browse and search abbreviations organized into seven groups.
-- **Responsive experience:** Desktop, tablet, and mobile layouts, with accessible focus states and reduced-motion support.
+- Exact, prefix, and partial word-form and lemma search
+- Autocomplete suggestions and keyboard navigation
+- Alphabetical browsing across all 31 Macedonian letters
+- Word details, lemmas, morphological tags, and related forms
+- Random word discovery
+- Favorites, recent words, and search history stored in the browser
+- Command palette and keyboard shortcuts
+- Macedonian language information and categorized abbreviations
+- Responsive layouts, accessible interactions, and reduced-motion support
 
-No account or authentication is required.
+## Technology
 
-## Technology Stack
-
-| Area | Technologies |
+| Layer | Tools |
 | --- | --- |
-| Frontend | React 19, Vite 6, React Router 7 |
-| UI | CSS, Framer Motion, React Icons, React Window |
-| Database | SQLite, sql.js, WebAssembly, Web Worker |
-| Browser storage | IndexedDB, localStorage |
-| Development | ESLint, Python 3, Git LFS |
-| Deployment | Vercel |
+| UI | React, Vite, React Router, Framer Motion, React Icons |
+| Browser-based database | SQLite, `sql.js`, WebAssembly, Web Worker, IndexedDB |
+| Full-dictionary database | Turso/libSQL (private, read-only application credentials) |
+| API | Vercel Functions, `@libsql/client` |
+| Quality assurance | ESLint, Vite build, GitHub Actions |
+| Hosting | Vercel |
 
 ## Architecture
 
+The app selects the backend at **build time** using `VITE_DICTIONARY_BACKEND`.
+
+**Browser demo (default):**
+
 ```text
-React UI
-   |
-   v
-Database client (src/db/client.js)
-   |
-   v
-Web Worker (src/db/sqlWorker.js)
-   |
-   v
-sql.js + WebAssembly
-   |
-   v
-SQLite database
+React UI → src/db/client.js → localClient.js
+         → sqlWorker.js → sql.js / WebAssembly
+         → demo SQLite file → IndexedDB cache
 ```
 
-The database client selects the appropriate database file for the build environment, loads a cached copy from IndexedDB when available, and communicates with the Web Worker for SQL execution. If a cached database cannot be opened, the client attempts to download a fresh copy.
+**Full dictionary (opt-in):**
 
-The application is fully client-side; it does not require a separate API or database server for dictionary queries.
+```text
+React UI → src/db/client.js → remoteClient.js
+         → POST /api/dictionary → server/dictionary.js
+         → read-only Turso cloud database
+```
 
-## Database Versions
+`/api/dictionary` exposes an allowlist of dictionary operations rather than arbitrary SQL. `/api/db-health` checks database connectivity and reports the record count. Database credentials are used only in server-side code.
 
-| Environment | Database file | Purpose |
-| --- | --- | --- |
-| Development | `public/msd-mk.sqlite` | Full dictionary, tracked with Git LFS |
-| Production | `public/msd-mk-demo.sqlite` | Smaller representative dictionary sample |
-
-The full database contains **more than 1.3 million Macedonian word forms**. The documented demo snapshot contains **28,580 word forms** with **31/31 Macedonian letters represented**. These snapshot figures can change when the demo database is regenerated.
-
-The generation script targets up to **30,000 rows**, sampling across the alphabet. The final number depends on how many matching rows are available for each letter.
-
-The production build removes `msd-mk.sqlite` from the generated `dist/` folder. The demo database and `sql-wasm.wasm` remain available to the deployed application.
-
-## Getting Started
+## Running locally
 
 ### Requirements
 
-- Node.js 20 or later (recommended) and npm
-- Git
-- Git LFS to download the full development database
-- Python 3 only if you want to regenerate the demo database
-
-### Installation
+- Node.js 22 and npm
+- Python 3 only for optional demo database regeneration
+- A personal copy of the full SQLite database only if you intend to use the full **local development** workflow
 
 ```bash
 git clone https://github.com/nikolasarafimov/mk-dictionary-app.git
 cd mk-dictionary-app
-
-git lfs install
-git lfs pull
-
 npm ci
-npm run dev
-```
-
-The development server uses port **8080**, as configured in `vite.config.js`. Open the local URL displayed by Vite.
-
-The development environment expects `public/msd-mk.sqlite` to contain the actual SQLite data, not only its Git LFS pointer.
-
-## Available Scripts
-
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start the Vite development server |
-| `npm run lint` | Run ESLint |
-| `npm run build` | Create a production build in `dist/` |
-| `npm run preview` | Preview the production build locally |
-| `npm run check` | Run lint followed by the production build |
-
-### Verify the project
-
-```bash
 npm run check
-```
-
-This command is available after updating `package.json` to the revised version. Passing it requires the lint and build steps to complete successfully in your local environment.
-
-## Demo Database Generation
-
-To regenerate the representative production database from the full development database:
-
-```bash
-python tools/create_demo_db.py
-```
-
-The script reads the full SQLite database, selects word forms across the 31 Macedonian letters, preserves the `words` table structure, copies its SQL-defined indexes, and validates the number of rows copied. It prints the alphabet coverage and replaces the previous demo database only after successful generation.
-
-The script does not modify the source database. Its current validation prints alphabet coverage; it does **not** enforce complete 31/31 coverage as a failing condition.
-
-## Project Structure
-
-```text
-mk-dictionary-app/
-├── docs/
-│   ├── project_report.pdf
-│   └── project_reportMK.pdf
-├── public/
-│   ├── logo.png
-│   ├── msd-mk-demo.sqlite
-│   ├── msd-mk.sqlite
-│   ├── recnikLogo.png
-│   └── sql-wasm.wasm
-├── src/
-│   ├── components/
-│   │   ├── AppErrorBoundary.jsx
-│   │   ├── CommandPalette.jsx
-│   │   ├── Footer.jsx
-│   │   ├── LetterNav.jsx
-│   │   ├── LoadingOverlay.jsx
-│   │   ├── NavBar.jsx
-│   │   ├── RandomWordButton.jsx
-│   │   ├── ScrollManager.jsx
-│   │   ├── SearchBar.jsx
-│   │   ├── Toast.jsx
-│   │   ├── ToastProvider.jsx
-│   │   ├── WordDetails.jsx
-│   │   └── WordList.jsx
-│   ├── context/
-│   │   └── ToastContext.js
-│   ├── data/
-│   │   └── abbreviations.js
-│   ├── db/
-│   │   ├── client.js
-│   │   ├── indexedDb.js
-│   │   └── sqlWorker.js
-│   ├── hooks/
-│   │   ├── useSearchSuggestions.js
-│   │   └── useToast.js
-│   ├── pages/
-│   │   ├── Abbreviations.jsx
-│   │   ├── Favorites.jsx
-│   │   ├── Home.jsx
-│   │   ├── LanguageInfo.jsx
-│   │   ├── ListPage.jsx
-│   │   ├── NotFoundPage.jsx
-│   │   ├── SearchResults.jsx
-│   │   └── WordPage.jsx
-│   ├── styles/
-│   │   ├── command-palette.css
-│   │   ├── components.css
-│   │   ├── design-system.css
-│   │   ├── details.css
-│   │   ├── home.css
-│   │   ├── information.css
-│   │   ├── loading.css
-│   │   ├── navigation.css
-│   │   ├── results.css
-│   │   ├── secondary-pages.css
-│   │   ├── shell.css
-│   │   └── toast.css
-│   ├── utils/
-│   │   ├── favoriteManager.js
-│   │   ├── recentManager.js
-│   │   ├── routes.js
-│   │   ├── searchHistoryManager.js
-│   │   └── tagDecoder.js
-│   ├── App.jsx
-│   └── main.jsx
-├── tools/
-│   └── create_demo_db.py
-├── .gitattributes
-├── .gitignore
-├── eslint.config.js
-├── index.html
-├── package-lock.json
-├── package.json
-├── README.md
-├── vercel.json
-└── vite.config.js
-```
-
-This tree describes the revised project structure after applying the changes from the code review. The published GitHub repository may still contain older files until the changes are committed and pushed.
-
-## Production Build and Deployment
-
-Build the application with:
-
-```bash
-npm run build
 npm run preview
 ```
 
-Expected production assets include the compiled frontend, `msd-mk-demo.sqlite`, `sql-wasm.wasm`, and the public image files. The full `msd-mk.sqlite` should not appear in `dist/`.
+The Vite production preview uses the demo database by default at the URL displayed in the terminal (usually `http://localhost:4173`).
 
-The project is deployed on **Vercel**:
+For `npm run dev` (port 8080), the local SQLite client expects `public/msd-mk.sqlite`. **That full database file is not distributed in the current repository tree** and must be supplied separately by an authorized developer. If you do not have the full database, you can copy the checked-in demo file to the expected local development filename **only if that file does not already exist**. Never overwrite a personal full-database copy, and do not commit the demo copy under the full-database name.
 
-[https://mkd-dictionary-app.vercel.app/home](https://mkd-dictionary-app.vercel.app/home)
-
-The `vercel.json` configuration rewrites SPA routes to `index.html`, allowing direct access and refreshes on routes such as:
-
-```text
-/home
-/list/:letter
-/search/:term
-/details/:form
-/language
-/abbr/:group
-/favorites
-/not-found/:term
+```powershell
+if (-not (Test-Path .\public\msd-mk.sqlite)) {
+  Copy-Item .\public\msd-mk-demo.sqlite .\public\msd-mk.sqlite
+}
+npm run dev
 ```
 
-Deployment under a subdirectory additionally requires consistent Vite `base` paths and hosting support for client-side routes.
+### npm scripts
 
-## Local Data and Privacy
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start Vite development server |
+| `npm run lint` | Run ESLint |
+| `npm run build` | Build the static frontend |
+| `npm run preview` | Preview the latest production build |
+| `npm run check` | Run ESLint and build |
 
-The dictionary does not require sign-in. Favorites, recent words, and search history are stored locally in the browser using `localStorage`. The downloaded SQLite file may be cached in IndexedDB.
+## Full database on Vercel
 
-Clearing browser storage or using a different browser or device can remove or make this local data unavailable. No account-based synchronization is provided.
+The full-dictionary deployment uses a Turso database populated from an authorized SQLite source. The Vercel project needs these server-only environment variables:
 
-## Academic Documentation
+| Variable | Purpose | Where used |
+| --- | --- | --- |
+| `TURSO_DATABASE_URL` | Turso `libsql://…` URL | Server only |
+| `TURSO_AUTH_TOKEN` | Turso **read-only** database token | Server only; mark as secret |
+| `VITE_DICTIONARY_BACKEND` | Set to `turso` to enable remote mode | Vite build; value is public |
 
-- [Project report (English)](docs/project_report.pdf)
-- [Project report (Macedonian)](docs/project_reportMK.pdf)
+Do **not** prefix database credentials with `VITE_`, include them in the repository, or copy them into frontend JavaScript.
+
+Preview and Production use separate Vercel environment settings. Test the full backend in a protected **Preview** deployment before explicitly enabling it for Production. Changing environment variables requires a fresh build/deployment to take effect in the frontend.
+
+The local full database is excluded from static deployment uploads through `.vercelignore`. The Vite build also removes the full `msd-mk.sqlite` from `dist/`.
+
+## CI
+
+GitHub Actions runs ESLint, a production-mode build, and basic demo database and WebAssembly asset checks on pushes and pull requests. This workflow verifies the browser-demo build; it does **not** constitute an integration test of the live Turso backend. The protected Turso Preview deployment must be tested separately.
+
+## Data and privacy
+
+Favorites, recent words, and search history live in each visitor's browser. In browser-demo mode, the demo SQLite file can be cached in IndexedDB. In Turso mode, dictionary queries run on the server; the full SQLite file is not delivered as a website asset.
+
+**Repository history note:** Removing `public/msd-mk.sqlite` from the current Git tree does not automatically remove earlier Git LFS objects, historical commits, forks, or previously downloaded copies. Historical-access cleanup is a separate repository-maintenance task. Review dataset redistribution rights before describing the underlying dictionary data as private or redistributable.
+
+## Academic documentation
+
+- [Project report — English](docs/project_report.pdf)
+- [Project report — Macedonian](docs/project_reportMK.pdf)
 
 ## Author
 
 **Nikola Sarafimov**
-
-- [GitHub](https://github.com/nikolasarafimov)
-- [LinkedIn](https://www.linkedin.com/in/nikola-sarafimov)
-- [Personal website](https://nikolasarafimov.github.io)
-
-## Version
-
-`1.0.0` — aligned with the revised `package.json`. The final lint, production-build, database, and deployment checks should be completed before tagging a release.
+[GitHub](https://github.com/nikolasarafimov) · [LinkedIn](https://www.linkedin.com/in/nikola-sarafimov) · [Portfolio](https://nikolasarafimov.github.io)

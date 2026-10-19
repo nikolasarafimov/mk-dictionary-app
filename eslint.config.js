@@ -112,6 +112,19 @@ export default [
 
   {
     files: [
+      'api/**/*.{js,mjs}',
+    ],
+
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        Response: 'readonly',
+      },
+    },
+  },
+
+  {
+    files: [
       'vite.config.js',
       'eslint.config.js',
     ],

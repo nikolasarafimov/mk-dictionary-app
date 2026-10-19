@@ -41,7 +41,7 @@ import {
 
 
 const IS_DEMO_BUILD =
-  import.meta.env.PROD
+  import.meta.env.PROD && import.meta.env.VITE_DICTIONARY_BACKEND !== 'turso'
 
 
 const pageAnimation = {
