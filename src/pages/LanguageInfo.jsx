@@ -346,7 +346,7 @@ export default function LanguageInfo() {
               className="language-signature-letter"
               aria-hidden="true"
             >
-              Ѓ
+              А
             </span>
 
             <div>
