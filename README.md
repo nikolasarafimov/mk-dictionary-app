@@ -1,142 +1,268 @@
+<div align="center">
+
 # Македонски речник
 
 ### Digital Macedonian Dictionary
 
-A modern, responsive web application for exploring Macedonian word forms, lemmas, and morphological tags. Built with **React 19**, **Vite 6**, **SQLite**, and **Turso**, with two supported database modes: a small browser-based demo and a server-backed full dictionary.
+**Explore the Macedonian language through 1,323,718 searchable word forms.**
 
-**[Live website](https://mk-dictionary-app.vercel.app/home)** · **[Source code](https://github.com/nikolasarafimov/mk-dictionary-app)**
+A modern, full-stack dictionary for discovering Macedonian word forms, lemmas, and morphological information — built with React, Vite, Turso, and Vercel.
 
-**Developer:** [Nikola Sarafimov](https://github.com/nikolasarafimov)
-**Version:** `1.0.0`
-**Academic context:** PIT, Faculty of Computer Science and Engineering (FINKI)
+[![Live Application](https://img.shields.io/badge/Live_Application-8F1734?style=for-the-badge&logo=vercel&logoColor=white)](https://mk-dictionary-app.vercel.app/home)
+
+[![Version](https://img.shields.io/badge/version-1.0.0-444444?style=flat-square)](https://github.com/nikolasarafimov/mk-dictionary-app)
+[![CI](https://github.com/nikolasarafimov/mk-dictionary-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nikolasarafimov/mk-dictionary-app/actions/workflows/ci.yml)
+![React](https://img.shields.io/badge/React-19-149ECA?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Turso](https://img.shields.io/badge/Database-Turso-4B5563?style=flat-square)
+
+</div>
+
+---
 
 ## Overview
 
-The dictionary supports two data sources without requiring a different user interface:
+**Македонски речник** is a responsive web application designed to make Macedonian linguistic data accessible through an intuitive search and exploration experience.
 
-| Mode | Data source | Word forms | Processing |
-| --- | --- | ---: | --- |
-| Browser demo | `public/msd-mk-demo.sqlite` | 28,580 in the current snapshot | `sql.js` + WebAssembly inside a Web Worker |
-| Full dictionary | Private Turso cloud database | **1,323,718** | Vercel serverless API + read-only SQL queries |
+The **live production application** uses a Turso-hosted SQLite database and a server-side API to search **1,323,718 word forms**. In addition to regular dictionary lookup, users can explore lemmas and morphological tags, browse the Macedonian alphabet, discover related forms, and keep track of words they want to revisit.
 
-The **currently published production site uses the demo database**. The full-dictionary configuration has been exercised separately in a protected Vercel Preview deployment. Enabling the full dictionary for production requires an explicit environment configuration change and a new deployment.
+The project also retains a smaller, browser-based SQLite mode for local development and demonstration. Both backends share the same React interface.
 
-The full database is **not downloaded to visitors' browsers** in Turso mode. Visitors receive only API query results. This does not prevent determined users from collecting publicly searchable results over time.
+| Dictionary data | Coverage | Application |
+| :---: | :---: | :---: |
+| **1,323,718** word forms | **31** Macedonian letters | **Full-stack** web application |
 
-## Features
+## Application Preview
 
-- Exact, prefix, and partial word-form and lemma search
-- Autocomplete suggestions and keyboard navigation
-- Alphabetical browsing across all 31 Macedonian letters
-- Word details, lemmas, morphological tags, and related forms
-- Random word discovery
-- Favorites, recent words, and search history stored in the browser
-- Command palette and keyboard shortcuts
-- Macedonian language information and categorized abbreviations
-- Responsive layouts, accessible interactions, and reduced-motion support
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="Macedonian Dictionary — production homepage and main search interface" width="100%" />
+</p>
+<p align="center"><sub>Homepage — the primary search experience and full-dictionary statistics.</sub></p>
 
-## Technology
+### Explore the interface
 
-| Layer | Tools |
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Search Results</strong>
+      <p>Search word forms and lemmas, refine results, and navigate the dictionary.</p>
+      <img src="docs/screenshots/search-results.png" alt="Macedonian Dictionary — search results page" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>Word Details</strong>
+      <p>Inspect lemmas, morphological information, and related word forms.</p>
+      <img src="docs/screenshots/word-details.png" alt="Macedonian Dictionary — word details and morphological information" width="100%" />
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <strong>Alphabetical Browsing</strong>
+      <p>Explore entries by letter across the 31-letter Macedonian alphabet.</p>
+      <img src="docs/screenshots/alphabetical-browsing.png" alt="Macedonian Dictionary — alphabetical word browsing" width="100%" />
+    </td>
+    <td width="50%" valign="top">
+      <strong>About the Language</strong>
+      <p>Discover reference information about the Macedonian language.</p>
+      <img src="docs/screenshots/language-info.png" alt="Macedonian Dictionary — Macedonian language reference page" width="100%" />
+    </td>
+  </tr>
+</table>
+
+## Key Features
+
+| Feature | Description |
 | --- | --- |
-| UI | React, Vite, React Router, Framer Motion, React Icons |
-| Browser-based database | SQLite, `sql.js`, WebAssembly, Web Worker, IndexedDB |
-| Full-dictionary database | Turso/libSQL (private, read-only application credentials) |
-| API | Vercel Functions, `@libsql/client` |
-| Quality assurance | ESLint, Vite build, GitHub Actions |
-| Hosting | Vercel |
+| **Advanced dictionary search** | Exact, prefix, and partial matching across Macedonian word forms and lemmas. |
+| **Autocomplete & suggestions** | Contextual suggestions while typing, with keyboard-friendly interactions and alternative search recommendations. |
+| **Morphological information** | View a word's lemma, grammatical tags, and decoded morphological information. |
+| **Related word forms** | Discover other entries associated with the selected lemma. |
+| **Alphabetical exploration** | Browse and filter dictionary entries using all 31 letters of the Macedonian alphabet. |
+| **Random word discovery** | Open a randomly selected dictionary entry. |
+| **Favorites & history** | Save favorite words and revisit recent words and searches through browser-local storage. |
+| **Command palette** | Access search and navigation actions using keyboard shortcuts. |
+| **Language reference** | Explore Macedonian language information and categorized abbreviations. |
+| **Responsive design** | A consistent reading and search experience across desktop, tablet, and mobile screens, with reduced-motion support. |
+
+No user account is required.
+
+## Technology Stack
+
+| Layer | Technologies |
+| --- | --- |
+| **Frontend** | React 19, Vite 6, JavaScript, CSS |
+| **Routing & interactions** | React Router 7, Framer Motion, React Icons, React Window |
+| **Production database** | Turso / libSQL (SQLite-compatible) |
+| **Server-side API** | Vercel Functions, `@libsql/client` |
+| **Browser-based mode** | SQLite, `sql.js`, WebAssembly, Web Workers, IndexedDB |
+| **Client-side persistence** | `localStorage` |
+| **Code quality & CI** | ESLint, GitHub Actions |
+| **Hosting** | Vercel |
 
 ## Architecture
 
-The app selects the backend at **build time** using `VITE_DICTIONARY_BACKEND`.
+The frontend accesses dictionary functionality through `src/db/client.js`, which selects a backend **at build time** using the `VITE_DICTIONARY_BACKEND` environment variable.
 
-**Browser demo (default):**
-
-```text
-React UI → src/db/client.js → localClient.js
-         → sqlWorker.js → sql.js / WebAssembly
-         → demo SQLite file → IndexedDB cache
+```mermaid
+flowchart TD
+    UI[React + Vite Interface] --> CLIENT[Dictionary Client]
+    CLIENT --> SELECT{Configured backend}
+    SELECT -->|Production: turso| REMOTE[Remote Client]
+    REMOTE --> API[Vercel Dictionary API]
+    API --> TURSO[(Turso / libSQL)]
+    SELECT -->|Default: local| LOCAL[Local Client]
+    LOCAL --> WORKER[Web Worker + sql.js]
+    WORKER --> SQLITE[(Local SQLite Database)]
+    LOCAL --> CACHE[IndexedDB Cache]
 ```
 
-**Full dictionary (opt-in):**
+### Production — Turso-backed dictionary
 
-```text
-React UI → src/db/client.js → remoteClient.js
-         → POST /api/dictionary → server/dictionary.js
-         → read-only Turso cloud database
-```
+The public deployment is configured with `VITE_DICTIONARY_BACKEND=turso`.
 
-`/api/dictionary` exposes an allowlist of dictionary operations rather than arbitrary SQL. `/api/db-health` checks database connectivity and reports the record count. Database credentials are used only in server-side code.
+1. React sends dictionary operations to `POST /api/dictionary`.
+2. A Vercel Function validates the operation and its arguments.
+3. `server/dictionary.js` performs parameterized SQL queries against Turso using read-only application credentials.
+4. The API returns only the requested results to the browser, not the entire database file.
 
-## Running locally
+The API exposes a defined set of dictionary operations rather than accepting arbitrary SQL from visitors. It also validates request content, enforces a JSON body-size limit, and caps operation-specific result counts. Vercel Firewall can provide additional request-rate protection.
 
-### Requirements
+### Local / demonstration mode
 
-- Node.js 22 and npm
-- Python 3 only for optional demo database regeneration
-- A personal copy of the full SQLite database only if you intend to use the full **local development** workflow
+Without `VITE_DICTIONARY_BACKEND=turso`, the app uses the local SQLite implementation through a Web Worker, `sql.js`, and WebAssembly. The browser can cache the SQLite data in IndexedDB to avoid unnecessary downloads.
+
+The checked-in demonstration database contains **28,580 word forms**. The full SQLite source file is intentionally **not included in the current repository tree or production website assets**.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 22 or newer and npm
+- Git
+- A local SQLite file or a configured Turso development environment for the corresponding development workflow
+
+Clone the repository and install dependencies:
 
 ```bash
 git clone https://github.com/nikolasarafimov/mk-dictionary-app.git
 cd mk-dictionary-app
 npm ci
-npm run check
+```
+
+### Option A — Run the browser-based demo
+
+A production-style local preview works without database credentials or access to the full SQLite file:
+
+```bash
+npm run build
 npm run preview
 ```
 
-The Vite production preview uses the demo database by default at the URL displayed in the terminal (usually `http://localhost:4173`).
+Open the URL displayed by Vite, typically `http://localhost:4173/home`.
 
-For `npm run dev` (port 8080), the local SQLite client expects `public/msd-mk.sqlite`. **That full database file is not distributed in the current repository tree** and must be supplied separately by an authorized developer. If you do not have the full database, you can copy the checked-in demo file to the expected local development filename **only if that file does not already exist**. Never overwrite a personal full-database copy, and do not commit the demo copy under the full-database name.
+This mode uses `public/msd-mk-demo.sqlite`, **not** the live Turso database.
+
+### Option B — Develop with Vite and a local SQLite file
+
+`npm run dev` starts the frontend with hot module replacement on port **8080**. By default, this mode expects `public/msd-mk.sqlite` to exist locally.
+
+If you have an authorized copy of the complete SQLite database, place it at that path. Alternatively, if the file does not exist and you only need the demo dataset, use this **PowerShell** command to create a local development copy without overwriting an existing file:
 
 ```powershell
 if (-not (Test-Path .\public\msd-mk.sqlite)) {
   Copy-Item .\public\msd-mk-demo.sqlite .\public\msd-mk.sqlite
 }
+
 npm run dev
 ```
 
-### npm scripts
+Visit `http://localhost:8080/home`. The full source SQLite file is ignored by Git and must not be committed.
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Start Vite development server |
-| `npm run lint` | Run ESLint |
-| `npm run build` | Build the static frontend |
-| `npm run preview` | Preview the latest production build |
-| `npm run check` | Run ESLint and build |
+### Option C — Develop the full application with Turso
 
-## Full database on Vercel
+To run the React frontend **together with the Vercel API** locally, configure the linked Vercel project's **Development** environment with:
 
-The full-dictionary deployment uses a Turso database populated from an authorized SQLite source. The Vercel project needs these server-only environment variables:
-
-| Variable | Purpose | Where used |
+| Variable | Value | Visibility |
 | --- | --- | --- |
-| `TURSO_DATABASE_URL` | Turso `libsql://…` URL | Server only |
-| `TURSO_AUTH_TOKEN` | Turso **read-only** database token | Server only; mark as secret |
-| `VITE_DICTIONARY_BACKEND` | Set to `turso` to enable remote mode | Vite build; value is public |
+| `VITE_DICTIONARY_BACKEND` | `turso` | Public build-time configuration |
+| `TURSO_DATABASE_URL` | Your Turso database URL | Server only |
+| `TURSO_AUTH_TOKEN` | A read-only Turso token | Server only; sensitive |
 
-Do **not** prefix database credentials with `VITE_`, include them in the repository, or copy them into frontend JavaScript.
+Then run from the project directory:
 
-Preview and Production use separate Vercel environment settings. Test the full backend in a protected **Preview** deployment before explicitly enabling it for Production. Changing environment variables requires a fresh build/deployment to take effect in the frontend.
+```bash
+npx vercel@latest pull --environment=development
+npx vercel@latest dev --listen 3000
+```
 
-The local full database is excluded from static deployment uploads through `.vercelignore`. The Vite build also removes the full `msd-mk.sqlite` from `dist/`.
+Open `http://localhost:3000/home`. The local Vercel development server serves the frontend and `/api/*` functions, while database queries use Turso. This mode requires network access and valid development credentials.
 
-## CI
+**Security:** Never prefix Turso credentials with `VITE_` or commit environment files. The `VITE_DICTIONARY_BACKEND` value only selects the frontend backend; it is not a secret.
 
-GitHub Actions runs ESLint, a production-mode build, and basic demo database and WebAssembly asset checks on pushes and pull requests. This workflow verifies the browser-demo build; it does **not** constitute an integration test of the live Turso backend. The protected Turso Preview deployment must be tested separately.
+## API
 
-## Data and privacy
+The serverless backend exposes two routes:
 
-Favorites, recent words, and search history live in each visitor's browser. In browser-demo mode, the demo SQLite file can be cached in IndexedDB. In Turso mode, dictionary queries run on the server; the full SQLite file is not delivered as a website asset.
+| Endpoint | Method | Purpose |
+| --- | --- | --- |
+| `/api/dictionary` | `POST` | Validate and execute supported dictionary operations. |
+| `/api/db-health` | `GET` | Check Turso connectivity and retrieve the number of word forms. |
 
-**Repository history note:** Removing `public/msd-mk.sqlite` from the current Git tree does not automatically remove earlier Git LFS objects, historical commits, forks, or previously downloaded copies. Historical-access cleanup is a separate repository-maintenance task. Review dataset redistribution rights before describing the underlying dictionary data as private or redistributable.
+For example, a dictionary search request follows this structure:
 
-## Academic documentation
+```json
+{
+  "operation": "searchForms",
+  "args": ["книга", 10]
+}
+```
 
-- [Project report — English](docs/project_report.pdf)
-- [Project report — Macedonian](docs/project_reportMK.pdf)
+Supported operations include searching, lookup by word form, word suggestions, alphabetical browsing, related forms, random word selection, and batch lookup of saved words. The endpoint does not provide unrestricted SQL execution.
+
+## Development & Quality Assurance
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite development server. |
+| `npm run lint` | Run ESLint checks. |
+| `npm run build` | Generate the frontend production build in `dist/`. |
+| `npm run preview` | Serve the compiled frontend locally. |
+| `npm run check` | Run ESLint followed by the production build. |
+
+Before submitting changes:
+
+```bash
+npm run check
+npm audit --omit=dev --audit-level=high
+```
+
+GitHub Actions validates linting, the frontend build, demo database integrity, and required WebAssembly assets. The CI build tests the **demo configuration**; live Turso functionality is validated separately through the Vercel deployment environment.
+
+## Deployment & Configuration
+
+The production site is hosted on **Vercel**, with Turso configured as the primary dictionary backend. Production requires:
+
+- `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` as server-side environment variables.
+- `VITE_DICTIONARY_BACKEND=turso` in the frontend build environment.
+- A fresh deployment whenever build-time environment configuration changes.
+
+The full SQLite file is excluded from static deployment uploads. New changes are verified locally and in a preview deployment before being merged into `main`.
+
+**Live application:** [mk-dictionary-app.vercel.app/home](https://mk-dictionary-app.vercel.app/home)
+
+## Data Handling
+
+Search history, recently viewed words, and favorites are stored in the visitor's browser. There is no user account or cross-device synchronization.
+
+The complete database is queried server-side in production. Its underlying SQLite file is not distributed as a website asset; however, publicly accessible search results can still be collected by users. Removing the full database from the current Git tree also does not erase historical Git LFS objects or copies obtained from earlier commits.
 
 ## Author
 
 **Nikola Sarafimov**
+
 [GitHub](https://github.com/nikolasarafimov) · [LinkedIn](https://www.linkedin.com/in/nikola-sarafimov) · [Portfolio](https://nikolasarafimov.github.io)
+
+---
+
+<div align="center">
+  <sub>Built to make the richness of the Macedonian language easier to explore.</sub>
+</div>
